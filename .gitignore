@@ -9,6 +9,4 @@ target/
 .bsp
 .vscode
 .bloop
-package.json
-package-lock.json
 node_modules/
