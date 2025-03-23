@@ -64,7 +64,7 @@ class Token(pTokenType: TokenType, pLexeme: String, pLiteral: Any, pLine: Int) {
     var line: Int = pLine
 
     override def toString(): String =
-        s"$this.tokenType $this.lexeme $this.literal"
+        s"$tokenType $lexeme $literal"
     end toString
 }
 
@@ -81,20 +81,24 @@ object Lexer:
 
     def apply(pSource: String) =
         hadError = false
-        tokens = scanTokens()
+        tokens = List[Token]()
         start = 0
         current = 0
         line = 1
         source = pSource
+        tokens = scanTokens()
     end apply
 
 
     def scanTokens(): List[Token] =
+        var tokenList = List[Token]()
         while (!isAtEnd()) {
             start = current
             scanToken()
         }
-        tokens :+ Token(TokenType.EOF, "", null, line)
+        // Add EOF token
+        val eofToken = new Token(TokenType.EOF, "", null, line)
+        tokens = tokens :+ eofToken
         tokens
     end scanTokens
 
@@ -116,15 +120,13 @@ object Lexer:
             case _:Char => if (isDigit(c)) {
                     number()
                 } else if (isAlpha(c)) {
-                identifier()
+                    identifier()
                 } else error(line, "Unexpected character.")
-
-
         end match
     end scanToken
 
     def isAlpha(c: Char): Boolean =
-        return (c >= 'a' && c >= 'z') || (c >= 'A' && c >= 'Z') || c == '_'
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'
     end isAlpha
 
     def isAlphanumeric(c: Char): Boolean =
@@ -176,7 +178,8 @@ object Lexer:
 
     def addToken(tokenType: TokenType, literal: Any): Unit =
         val text = source.substring(start, current)
-        tokens :+ new Token(tokenType, text, literal, line)
+        val token = new Token(tokenType, text, literal, line)
+        tokens = tokens :+ token
     end addToken
 
     def addToken(tokenType: TokenType): Unit =
@@ -193,6 +196,7 @@ object Lexer:
 
     def report (line: Int, message: String, where: String) = 
         println(s"[line $line] Error $where: $message")
+        hadError = true
     end report
 
     def printResult() =
@@ -201,4 +205,3 @@ object Lexer:
         }
     end printResult
 end Lexer
-
