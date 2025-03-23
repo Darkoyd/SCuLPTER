@@ -3,18 +3,58 @@ package livechart
 enum TokenType:
     // Single characters
     case QUESTION
+    case NUM_NEG
     // Flow Control
-    case JMP, CMP
+    case JMP
+    case CMP
     // Stack Manipulation
-    case PUSH, POP, DUP, MOV
+    case PUSH
+    case POP
+    case DUP
+    case MOV
     // Arithmetic
-    case ADD, SUB, MUL, DIV, MOD, NEG
+    case ADD
+    case SUB
+    case MUL
+    case DIV
+    case MOD
+    case NEG
     // Literals
-    case NUMBER, STACK
+    case NUMBER
+    case STACK
     // Keywords
     case NIL
     // End of File
     case EOF
+
+val keywords: Map[String, TokenType] = Map(
+    "nil" -> TokenType.NIL,
+    "jmp" -> TokenType.JMP,
+    "cmp" -> TokenType.CMP,
+    "push" -> TokenType.PUSH,
+    "pop" -> TokenType.POP,
+    "dup" -> TokenType.DUP,
+    "mov" -> TokenType.MOV,
+    "add" -> TokenType.ADD,
+    "sub" -> TokenType.SUB,
+    "mul" -> TokenType.MUL,
+    "div" -> TokenType.DIV,
+    "mod" -> TokenType.MOD,
+    "neg" -> TokenType.NEG,
+    "NIL" -> TokenType.NIL,
+    "JMP" -> TokenType.JMP,
+    "CMP" -> TokenType.CMP,
+    "PUSH" -> TokenType.PUSH,
+    "POP" -> TokenType.POP,
+    "DUP" -> TokenType.DUP,
+    "MOV" -> TokenType.MOV,
+    "ADD" -> TokenType.ADD,
+    "SUB" -> TokenType.SUB,
+    "MUL" -> TokenType.MUL,
+    "DIV" -> TokenType.DIV,
+    "MOD" -> TokenType.MOD,
+    "NEG" -> TokenType.NEG
+)
 
 
 class Token(pTokenType: TokenType, pLexeme: String, pLiteral: Any, pLine: Int) {
@@ -61,13 +101,71 @@ object Lexer:
     def scanToken() =
         val c = advance()
         c match
+            // Single characters
             case '?' => addToken(TokenType.QUESTION)
-            case _: Char => error(line, "Unexpected character.")
+            // Comments
+            case '/' => if (matchChar('/')) {
+                while (peek() != '\n' && !isAtEnd()) advance()
+            } else error(line, "Unexpected character.")
+            // Empty characters
+            case '\n' => line += 1
+            case ' ' => ()
+            case '\r' => ()
+            case '\t' => ()
+
+            case _:Char => if (isDigit(c)) {
+                    number()
+                } else if (isAlpha(c)) {
+                identifier()
+                } else error(line, "Unexpected character.")
+
+
         end match
     end scanToken
 
+    def isAlpha(c: Char): Boolean =
+        return (c >= 'a' && c >= 'z') || (c >= 'A' && c >= 'Z') || c == '_'
+    end isAlpha
+
+    def isAlphanumeric(c: Char): Boolean =
+        return isAlpha(c) || isDigit(c)
+    end isAlphanumeric
+
+    def identifier() =
+        while (isAlphanumeric(peek())) advance()
+
+        val text = source.substring(start, current)
+        val tokenType = keywords.getOrElse(text, TokenType.STACK)
+        addToken(tokenType)
+    end identifier
+
+    def number() =
+        while (isDigit(peek())) advance()
+        if (peek() == '.' && isDigit(peekNext())) {
+            advance()
+            while (isDigit(peek())) advance()
+        }
+        addToken(TokenType.NUMBER, source.substring(start, current).toDouble)
+    end number
+
+    def peekNext(): Char =
+        if (current + 1 >= source.length) '\u0000'
+        else source.charAt(current + 1)
+    end peekNext
+
+    def isDigit(c: Char): Boolean =
+        c >= '0' && c <= '9'
+    end isDigit
+
+    def matchChar (expected: Char): Boolean =
+        if (isAtEnd()) return false
+        if (source.charAt(current) != expected) return false
+        current += 1
+        true
+    end matchChar
+
     def peek(): Char =
-        if (isAtEnd()) '\0'
+        if (isAtEnd()) '\u0000'
         else source.charAt(current)
     end peek
 
@@ -89,7 +187,6 @@ object Lexer:
         current >= source.length
     end isAtEnd
 
-
     def error (line: Int, message: String) =
         report(line, message, "")
     end error
@@ -97,5 +194,11 @@ object Lexer:
     def report (line: Int, message: String, where: String) = 
         println(s"[line $line] Error $where: $message")
     end report
+
+    def printResult() =
+        for (token <- tokens) {
+            println(token)
+        }
+    end printResult
 end Lexer
 

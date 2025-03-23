@@ -21,6 +21,7 @@ object TextArea:
         val clearText = Observer[Any](_ => textVar.set(""))
 
         div(
+            "Input",
             textArea(
                 typ := "text",
                 placeholder := "Type your code here...",
@@ -31,6 +32,7 @@ object TextArea:
                 onInput.mapToValue --> textVar
             ),
 
+
         br(),
 
         button(
@@ -40,7 +42,10 @@ object TextArea:
 
         button(
             "Lex",
-            onClick --> (_ => Lexer.lexer(textVar.now()))
+            onClick --> (_ => {
+                Lexer.apply(textVar.now())
+                Lexer.printResult()
+            })
         )
             
         )
