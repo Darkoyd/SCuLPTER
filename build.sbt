@@ -19,7 +19,7 @@ lazy val livechart = project.in(file("."))
     scalaJSLinkerConfig ~= {
       _.withModuleKind(ModuleKind.ESModule)
         .withModuleSplitStyle(
-          ModuleSplitStyle.SmallModulesFor(List("livechart")))
+          ModuleSplitStyle.SmallModulesFor(List("scala")))
     },
 
     /* Depend on the scalajs-dom library.

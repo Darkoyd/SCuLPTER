@@ -1,4 +1,4 @@
-package livechart
+package webapp
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.*
@@ -6,6 +6,8 @@ import scala.scalajs.js.annotation.*
 import org.scalajs.dom
 
 import com.raquo.laminar.api.L.{*, given}
+
+import sculpter.Lexer
 
 @main
 def Sculpter(): Unit =
