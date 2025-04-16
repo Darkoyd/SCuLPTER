@@ -64,7 +64,7 @@ MUL g     // g now contains 12
         val isParsed = Var(false)
         
         // Interpreter state
-        val currentStacksVar = Var[Map[String, List[Double]]](Map())
+        val currentStacksVar = Var[Map[String, List[Option[Double]]]](Map())
         val currentStmtVar = Var(0)
         val totalStmtsVar = Var(0)
         val canStepForwardVar = Var(false)
@@ -351,7 +351,12 @@ MUL g     // g now contains 12
                                         h5(s"Stack: $name"),
                                         ul(
                                             className := "stack-items",
-                                            values.map(value => li(value.toString))
+                                            values.map(optValue => li(
+                                                optValue match {
+                                                    case Some(value) => value.toString
+                                                    case None => "nil"
+                                                }
+                                            ))
                                         )
                                     )
                                 }

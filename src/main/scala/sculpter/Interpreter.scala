@@ -26,10 +26,11 @@ package sculpter
  */
 class Interpreter:
   // Stack state storage - maps stack names to their values
-  private var stacks: Map[String, List[Double]] = Map().withDefaultValue(List())
+  // We'll use Option[Double] to represent values, where None represents nil
+  private var stacks: Map[String, List[Option[Double]]] = Map().withDefaultValue(List())
   
   // Execution history for step back functionality
-  private var history: List[Map[String, List[Double]]] = List()
+  private var history: List[Map[String, List[Option[Double]]]] = List()
   
   // Current position in the program
   private var currentStatement: Int = 0
@@ -82,22 +83,35 @@ class Interpreter:
     case UnaryStatement(operation, operand) => executeUnary(operation, operand)
     case BinaryStatement(operation, left, right) => executeBinary(operation, left, right)
   
+  // Helper to ensure a stack exists in the map
+  private def ensureStackExists(name: String): Unit =
+    if (!stacks.contains(name)) {
+      stacks = stacks.updated(name, List())
+    }
+  
   // Execute a unary statement
   private def executeUnary(operation: TokenType, operand: Expr): Unit = 
     operation match
       case TokenType.QUESTION =>
         // Conditional execution - if value > 0, execute next instruction, otherwise skip it
-        val value = evaluateExpr(operand)
-        if (value <= 0) {
-          // Skip the next instruction by incrementing currentStatement
-          currentStatement += 1
-          skippedInstruction = true
+        evaluateExpr(operand) match {
+          case None => 
+            // Nil values cause skip
+            currentStatement += 1
+            skippedInstruction = true
+          case Some(value) =>
+            if (value <= 0) {
+              // Skip the next instruction by incrementing currentStatement
+              currentStatement += 1
+              skippedInstruction = true
+            }
         }
         
       case TokenType.POP =>
         // Remove top value from a stack
         operand match
           case StackExpr(name) => 
+            ensureStackExists(name)
             if (stacks(name).nonEmpty)
               stacks = stacks.updated(name, stacks(name).tail)
           case _ => throw new RuntimeException("Cannot POP from non-stack expression")
@@ -106,48 +120,89 @@ class Interpreter:
         // Duplicate top value on a stack
         operand match
           case StackExpr(name) => 
+            ensureStackExists(name)
             if (stacks(name).nonEmpty)
               stacks = stacks.updated(name, stacks(name).head :: stacks(name))
+            else
+              // Empty stack returns nil
+              stacks = stacks.updated(name, None :: stacks(name))
           case _ => throw new RuntimeException("Cannot DUP from non-stack expression")
           
       case TokenType.NEG =>
         // Negate top value on a stack
         operand match
           case StackExpr(name) => 
-            if (stacks(name).nonEmpty)
-              stacks = stacks.updated(name, -stacks(name).head :: stacks(name).tail)
+            ensureStackExists(name)
+            if (stacks(name).nonEmpty) {
+              stacks(name).head match {
+                case Some(value) =>
+                  stacks = stacks.updated(name, Some(-value) :: stacks(name).tail)
+                case None =>
+                  throw new RuntimeException("Cannot negate nil value")
+              }
+            } else {
+              throw new RuntimeException(s"Cannot NEG from empty stack $name")
+            }
           case _ => throw new RuntimeException("Cannot NEG from non-stack expression")
           
       case TokenType.JMP =>
         // Jump to a specific statement (line)
-        val jumpTo = evaluateExpr(operand).toInt
-        if (jumpTo >= 0 && jumpTo <= program.statements.length)
-          // Adjust because we'll increment currentStatement after execution
-          currentStatement = jumpTo - 1
-        else
-          throw new RuntimeException(s"Invalid jump target: $jumpTo")
+        evaluateExpr(operand) match {
+          case Some(value) =>
+            val jumpTo = value.toInt
+            if (jumpTo >= 0 && jumpTo <= program.statements.length)
+              // Adjust because we'll increment currentStatement after execution
+              currentStatement = jumpTo - 1
+            else
+              throw new RuntimeException(s"Invalid jump target: $jumpTo")
+          case None =>
+            throw new RuntimeException("Cannot jump to nil")
+        }
           
       case TokenType.CMP =>
-        // Compare top two values on a stack - pushes 1 if true, 0 if false
+        // Compare top value on stack with nil or compare top two values
         operand match
           case StackExpr(name) => 
-            if (stacks(name).size >= 2)
-              val result = if (stacks(name)(0) == stacks(name)(1)) 1.0 else 0.0
-              stacks = stacks.updated(name, result :: stacks(name).drop(2))
-            else
+            ensureStackExists(name)
+            
+            // Special handling for nil comparison
+            if (stacks(name).isEmpty) {
+              // Empty stack is treated as nil, so comparing with nil gives true (1)
+              stacks = stacks.updated(name, Some(1.0) :: stacks(name))
+            } else if (stacks(name).head == None) {
+              // Top value is nil, so it equals nil
+              stacks = stacks.updated(name, Some(1.0) :: stacks(name).tail)
+            } else if (stacks(name).size >= 2) {
+              // Compare top two values
+              (stacks(name)(0), stacks(name)(1)) match {
+                case (Some(a), Some(b)) =>
+                  val result = if (a == b) 1.0 else 0.0
+                  stacks = stacks.updated(name, Some(result) :: stacks(name).drop(2))
+                case (None, None) =>
+                  // Two nils are equal
+                  stacks = stacks.updated(name, Some(1.0) :: stacks(name).drop(2))
+                case _ =>
+                  // One nil and one non-nil are not equal
+                  stacks = stacks.updated(name, Some(0.0) :: stacks(name).drop(2))
+              }
+            } else {
               throw new RuntimeException("Not enough values on stack for CMP")
+            }
           case _ => throw new RuntimeException("Cannot CMP on non-stack expression")
       
       // Handle arithmetic operations in unary form (operating on top two values of a stack)
       case TokenType.ADD | TokenType.SUB | TokenType.MUL | TokenType.DIV | TokenType.MOD =>
         operand match
           case StackExpr(name) =>
+            ensureStackExists(name)
             if (stacks(name).size >= 2) {
-              val b = stacks(name)(0) // First popped value (top of stack)
-              val a = stacks(name)(1) // Second popped value
-              val result = arithmeticOp(operation, a, b)
-              // Replace the top two values with the result
-              stacks = stacks.updated(name, result :: stacks(name).drop(2))
+              (stacks(name)(0), stacks(name)(1)) match {
+                case (Some(b), Some(a)) =>
+                  val result = arithmeticOp(operation, a, b)
+                  stacks = stacks.updated(name, Some(result) :: stacks(name).drop(2))
+                case _ =>
+                  throw new RuntimeException("Cannot perform arithmetic on nil values")
+              }
             } else {
               throw new RuntimeException(s"Not enough values on stack $name for operation")
             }
@@ -162,37 +217,68 @@ class Interpreter:
         // Push a value onto a stack
         left match
           case StackExpr(name) => 
-            val value = evaluateExpr(right)
-            stacks = stacks.updated(name, value :: stacks(name))
+            ensureStackExists(name)
+            right match {
+              case NilExpr() =>
+                // Push nil (None) onto the stack
+                stacks = stacks.updated(name, None :: stacks(name))
+              case _ =>
+                // Push regular value
+                evaluateExpr(right) match {
+                  case Some(value) => 
+                    stacks = stacks.updated(name, Some(value) :: stacks(name))
+                  case None => 
+                    // This happens when evaluating a nil value expression
+                    stacks = stacks.updated(name, None :: stacks(name))
+                }
+            }
           case _ => throw new RuntimeException("First operand of PUSH must be a stack")
           
       case TokenType.MOV =>
         // Move a value from one stack to another
         (left, right) match
           case (StackExpr(to), StackExpr(from)) =>
-            if (stacks(from).nonEmpty)
+            ensureStackExists(to)
+            ensureStackExists(from)
+            if (stacks(from).nonEmpty) {
+              // Move the value
               stacks = stacks
                 .updated(to, stacks(from).head :: stacks(to))
                 .updated(from, stacks(from).tail)
-            else
-              throw new RuntimeException(s"Stack $from is empty")
+            } else {
+              // If source stack is empty, move nil
+              stacks = stacks.updated(to, None :: stacks(to))
+            }
           case _ => throw new RuntimeException("Both operands of MOV must be stacks")
           
       // Arithmetic operations in binary form (operating on stack top value and a literal)
       case TokenType.ADD | TokenType.SUB | TokenType.MUL | TokenType.DIV | TokenType.MOD =>
         left match
           case StackExpr(name) =>
+            ensureStackExists(name)
             if (stacks(name).nonEmpty) {
-              val stackValue = stacks(name).head
-              
-              // Ensure right expression is a number
-              right match
-                case NumberExpr(rightValue) =>
-                  val result = arithmeticOp(operation, stackValue, rightValue)
-                  // Replace the top value with the result
-                  stacks = stacks.updated(name, result :: stacks(name).tail)
-                case _ => 
-                  throw new RuntimeException("Second operand of binary arithmetic must be a number")
+              stacks(name).head match {
+                case Some(stackValue) =>
+                  // Ensure right expression is a number
+                  right match {
+                    case NumberExpr(rightValue) =>
+                      val result = arithmeticOp(operation, stackValue, rightValue)
+                      // Replace the top value with the result
+                      stacks = stacks.updated(name, Some(result) :: stacks(name).tail)
+                    case NilExpr() =>
+                      throw new RuntimeException("Cannot perform arithmetic with nil value")
+                    case _ => 
+                      evaluateExpr(right) match {
+                        case Some(value) =>
+                          val result = arithmeticOp(operation, stackValue, value)
+                          stacks = stacks.updated(name, Some(result) :: stacks(name).tail)
+                        case None =>
+                          throw new RuntimeException("Cannot perform arithmetic with nil value")
+                      }
+                  }
+                case None =>
+                  throw new RuntimeException("Cannot perform arithmetic on nil value")
+              }
             } else {
               throw new RuntimeException(s"Stack $name is empty")
             }
@@ -201,12 +287,13 @@ class Interpreter:
       case _ => throw new RuntimeException(s"Unsupported binary operation: $operation")
   
   // Evaluate an expression to get its value
-  private def evaluateExpr(expr: Expr): Double = expr match
-    case NumberExpr(value) => value
+  private def evaluateExpr(expr: Expr): Option[Double] = expr match
+    case NumberExpr(value) => Some(value)
     case StackExpr(name) => 
+      ensureStackExists(name)
       if (stacks(name).nonEmpty) stacks(name).head 
-      else throw new RuntimeException(s"Stack $name is empty")
-    case NilExpr() => 0.0
+      else None  // Empty stack treated as nil
+    case NilExpr() => None
   
   // Perform arithmetic operations
   private def arithmeticOp(op: TokenType, a: Double, b: Double): Double = op match
@@ -222,7 +309,7 @@ class Interpreter:
     case _ => throw new RuntimeException(s"Unsupported arithmetic operation: $op")
   
   // Get the current state of all stacks
-  def getStacksState(): Map[String, List[Double]] = stacks
+  def getStacksState(): Map[String, List[Option[Double]]] = stacks
   
   // Get the current position in the program
   def getCurrentStatement(): Int = currentStatement
