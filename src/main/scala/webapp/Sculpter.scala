@@ -7,7 +7,7 @@ import org.scalajs.dom
 
 import com.raquo.laminar.api.L.{*, given}
 
-import sculpter.{Lexer, Parser, Program, UnaryStatement, BinaryStatement, StackExpr, NumberExpr, NilExpr}
+import sculpter.{Lexer, Parser, Program, UnaryStatement, BinaryStatement, StackExpr, NumberExpr, NilExpr, InterpreterInstance}
 
 @main
 def Sculpter(): Unit =
@@ -15,16 +15,76 @@ def Sculpter(): Unit =
 
 object TextArea:
     def appElement(): Element =
-        val textVar = Var("")
+        val textVar = Var("""// SCuLPT example program
+// Try stepping through this program to see how it works
+
+// Push values onto stack 'a'
+PUSH a 5
+PUSH a 10
+
+// Duplicate the top value of stack 'a'
+DUP a
+
+// Create stack 'b' with value 3
+PUSH b 3
+
+// Move top value from stack 'a' to stack 'b'
+MOV b a
+
+// Add top values of stacks 'b' and 'a' (binary form)
+ADD b a
+
+// Conditional execution with QUESTION operator
+PUSH c 1   // c > 0, so next instruction will be executed
+? c
+PUSH d 100 // This will be executed because c > 0
+
+PUSH c -2  // c < 0, so next instruction will be skipped
+? c
+PUSH d 200 // This will be skipped because c <= 0
+
+// Arithmetic examples
+// Binary form (stack and number literal)
+PUSH e 7
+SUB e 2   // e now contains 5 (7-2)
+
+// Unary form (operating on top two stack values)
+PUSH f 3
+PUSH f 5
+SUB f     // f now contains -2 (3-5)
+
+// Another unary example
+PUSH g 3
+PUSH g 4
+MUL g     // g now contains 12
+""")
         val lexerOutputVar = Var[List[String]](List())
         val parserOutputVar = Var[String]("")
         val hasParseError = Var(false)
+        val isParsed = Var(false)
+        
+        // Interpreter state
+        val currentStacksVar = Var[Map[String, List[Double]]](Map())
+        val currentStmtVar = Var(0)
+        val totalStmtsVar = Var(0)
+        val canStepForwardVar = Var(false)
+        val canStepBackwardVar = Var(false)
+
+        def resetInterpreter(): Unit = {
+            currentStacksVar.set(Map())
+            currentStmtVar.set(0)
+            totalStmtsVar.set(0)
+            canStepForwardVar.set(false)
+            canStepBackwardVar.set(false)
+        }
 
         val clearText = Observer[Any](_ => textVar.set(""))
         val clearOutput = Observer[Any](_ => {
             lexerOutputVar.set(List())
             parserOutputVar.set("")
             hasParseError.set(false)
+            isParsed.set(false)
+            resetInterpreter()
         })
 
         // Helper to format AST node for display
@@ -105,6 +165,8 @@ object TextArea:
                                 lexerOutputVar.set(tokenStrings)
                                 hasParseError.set(false)
                                 parserOutputVar.set("")
+                                isParsed.set(false)
+                                resetInterpreter()
                             })
                         ),
                         
@@ -126,10 +188,21 @@ object TextArea:
                                     val ast = Parser(tokens)
                                     parserOutputVar.set(formatASTNode(ast))
                                     hasParseError.set(false)
+                                    
+                                    // Reset and prepare interpreter
+                                    InterpreterInstance.reset(ast)
+                                    currentStacksVar.set(InterpreterInstance.getStacksState())
+                                    currentStmtVar.set(InterpreterInstance.getCurrentStatement())
+                                    totalStmtsVar.set(InterpreterInstance.getTotalStatements())
+                                    canStepForwardVar.set(totalStmtsVar.now() > 0)
+                                    canStepBackwardVar.set(false)
+                                    isParsed.set(true)
                                 } catch {
                                     case e: Exception =>
                                         parserOutputVar.set(s"Parse error: ${e.getMessage()}")
                                         hasParseError.set(true)
+                                        isParsed.set(false)
+                                        resetInterpreter()
                                 }
                             })
                         )
@@ -185,6 +258,108 @@ object TextArea:
                 )
             ),
             
+            // Interpreter UI section
+            div(
+                className := "interpreter-container",
+                display <-- isParsed.signal.map(parsed => if (parsed) "block" else "none"),
+                
+                h3("Interpreter"),
+                
+                div(
+                    className := "interpreter-controls",
+                    
+                    div(
+                        className := "execution-info",
+                        span("Statement: "),
+                        span(
+                            child.text <-- currentStmtVar.signal.map(_.toString)
+                        ),
+                        span(" / "),
+                        span(
+                            child.text <-- totalStmtsVar.signal.map(_.toString)
+                        )
+                    ),
+                    
+                    div(
+                        className := "button-row",
+                        button(
+                            "Step Back",
+                            disabled <-- canStepBackwardVar.signal.map(!_),
+                            onClick --> Observer[Any](_ => {
+                                if (InterpreterInstance.stepBackward()) {
+                                    currentStacksVar.set(InterpreterInstance.getStacksState())
+                                    currentStmtVar.set(InterpreterInstance.getCurrentStatement())
+                                    canStepForwardVar.set(true)
+                                    canStepBackwardVar.set(InterpreterInstance.getCurrentStatement() > 0)
+                                }
+                            })
+                        ),
+                        
+                        button(
+                            "Step Forward",
+                            disabled <-- canStepForwardVar.signal.map(!_),
+                            onClick --> Observer[Any](_ => {
+                                try {
+                                    if (InterpreterInstance.stepForward()) {
+                                        currentStacksVar.set(InterpreterInstance.getStacksState())
+                                        currentStmtVar.set(InterpreterInstance.getCurrentStatement())
+                                        canStepBackwardVar.set(true)
+                                        canStepForwardVar.set(InterpreterInstance.getCurrentStatement() < InterpreterInstance.getTotalStatements())
+                                        
+                                        // Check if we skipped an instruction due to QUESTION operation
+                                        if (InterpreterInstance.didSkipInstruction()) {
+                                            dom.window.alert("QUESTION operation evaluated to <= 0, skipping next instruction")
+                                        }
+                                    } else {
+                                        canStepForwardVar.set(false)
+                                    }
+                                } catch {
+                                    case e: Exception =>
+                                        dom.window.alert(s"Runtime Error: ${e.getMessage()}")
+                                }
+                            })
+                        ),
+                        
+                        button(
+                            "Reset",
+                            onClick --> Observer[Any](_ => {
+                                InterpreterInstance.reset(Parser(Lexer.tokens))
+                                currentStacksVar.set(InterpreterInstance.getStacksState())
+                                currentStmtVar.set(InterpreterInstance.getCurrentStatement())
+                                canStepForwardVar.set(InterpreterInstance.getTotalStatements() > 0)
+                                canStepBackwardVar.set(false)
+                            })
+                        )
+                    )
+                ),
+                
+                div(
+                    className := "stacks-container",
+                    h4("Stacks"),
+                    
+                    div(
+                        className := "stacks-view",
+                        
+                        // Display stacks
+                        children <-- currentStacksVar.signal.map(stacks => 
+                            if (stacks.isEmpty) 
+                                List(p("No stacks defined yet. Execute code to see stacks."))
+                            else 
+                                stacks.toList.map { case (name, values) => 
+                                    div(
+                                        className := "stack",
+                                        h5(s"Stack: $name"),
+                                        ul(
+                                            className := "stack-items",
+                                            values.map(value => li(value.toString))
+                                        )
+                                    )
+                                }
+                        )
+                    )
+                )
+            ),
+            
             // Add some basic styling
             styleTag("""
                 .editor-container {
@@ -226,6 +401,43 @@ object TextArea:
                 }
                 button:hover {
                     background-color: #45a049;
+                }
+                button:disabled {
+                    background-color: #cccccc;
+                    cursor: not-allowed;
+                }
+                .interpreter-container {
+                    margin-top: 20px;
+                    padding: 20px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                }
+                .execution-info {
+                    margin-bottom: 10px;
+                }
+                .stacks-container {
+                    margin-top: 20px;
+                }
+                .stacks-view {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 20px;
+                }
+                .stack {
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    padding: 10px;
+                    min-width: 150px;
+                    background-color: #f9f9f9;
+                }
+                .stack h5 {
+                    margin-top: 0;
+                    margin-bottom: 10px;
+                    color: #333;
+                }
+                .stack-items {
+                    margin: 0;
+                    padding-left: 20px;
                 }
             """)
         )

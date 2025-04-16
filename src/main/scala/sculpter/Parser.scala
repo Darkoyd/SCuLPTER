@@ -34,13 +34,37 @@ object Parser:
     // Check if this is a unary or binary statement
     val token = peek()
     token.tokenType match
-      // Binary operations
-      case TokenType.PUSH | TokenType.MOV | 
-           TokenType.ADD | TokenType.SUB | TokenType.MUL | 
+      // These can be either binary or unary operations depending on token count
+      case TokenType.ADD | TokenType.SUB | TokenType.MUL | 
            TokenType.DIV | TokenType.MOD =>
+        
+        val operator = advance()
+        val first = expression()
+        
+        // Check if there's another expression (makes it binary)
+        if (!check(TokenType.ENTER) && !check(TokenType.EOF)) {
+          // For binary arithmetic, the second argument must be a number
+          val second = if (peek().tokenType == TokenType.NUMBER || peek().tokenType == TokenType.NUM_NEG) {
+            expression()
+          } else {
+            throw error(peek(), "Second argument of binary arithmetic must be a number")
+          }
+          
+          // Optional newline after statement
+          if (check(TokenType.ENTER)) advance()
+          AST.createBinaryStmt(operator.tokenType, first, second)
+        } else {
+          // Unary format - applies to top two values on the stack
+          // Optional newline after statement
+          if (check(TokenType.ENTER)) advance()
+          AST.createUnaryStmt(operator.tokenType, first)
+        }
+      
+      // Always binary operations
+      case TokenType.PUSH | TokenType.MOV =>
         binary()
         
-      // Unary operations  
+      // Always unary operations  
       case TokenType.QUESTION | TokenType.JMP | TokenType.CMP |
            TokenType.POP | TokenType.DUP | TokenType.NEG =>
         unary()
