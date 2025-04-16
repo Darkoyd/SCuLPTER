@@ -12,6 +12,7 @@ object Parser:
     program()
   end apply
   
+  // Parse a complete program
   def program(): Program =
     var statements = List[Statement]()
     
@@ -28,14 +29,18 @@ object Parser:
     Program(statements)
   end program
   
+  // Parse a single statement
   def statement(): Statement =
+    // Check if this is a unary or binary statement
     val token = peek()
     token.tokenType match
+      // Binary operations
       case TokenType.PUSH | TokenType.MOV | 
            TokenType.ADD | TokenType.SUB | TokenType.MUL | 
            TokenType.DIV | TokenType.MOD =>
         binary()
         
+      // Unary operations  
       case TokenType.QUESTION | TokenType.JMP | TokenType.CMP |
            TokenType.POP | TokenType.DUP | TokenType.NEG =>
         unary()
@@ -44,27 +49,33 @@ object Parser:
         throw error(token, s"Expected statement, got ${token.tokenType}")
   end statement
   
+  // Parse a unary statement
   def unary(): UnaryStatement =
     val operator = advance()
     val operand = expression()
     
+    // Optional newline after statement
     if (check(TokenType.ENTER)) advance()
     
     AST.createUnaryStmt(operator.tokenType, operand)
   end unary
   
+  // Parse a binary statement
   def binary(): BinaryStatement =
     val operator = advance()
     val left = expression()
     val right = expression()
     
+    // Optional newline after statement
     if (check(TokenType.ENTER)) advance()
     
     AST.createBinaryStmt(operator.tokenType, left, right)
   end binary
   
+  // Parse an expression
   def expression(): Expr =
     if (matchToken(TokenType.NUM_NEG)) {
+      // Handle negative numbers
       val numToken = consume(TokenType.NUMBER, "Expected number after '-'")
       val value = -numToken.literal.asInstanceOf[Double]
       val token = Token(TokenType.NUMBER, "-" + numToken.lexeme, value, numToken.line)
@@ -80,6 +91,7 @@ object Parser:
     }
   end expression
 
+  // Token handling methods
   def matchToken(tokenType: TokenType): Boolean =
     if (check(tokenType)) {
       advance()
