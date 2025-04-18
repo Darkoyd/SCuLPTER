@@ -24,7 +24,7 @@ Start the SBT server with
 sbt 
 ```
 
-Then initializing the Scala.js linker with 
+Then, inside the sbt CLI, initialize the Scala.js linker with 
 
 ```
 fastLinkJS
@@ -32,7 +32,7 @@ fastLinkJS
 ~fastLinkJS //For live updates on file change
 ```
 
-Lastly, start the local web server with Vite using
+Lastly, start the local web server with Vite on a separate terminal using
 
 ```
 npm run dev
