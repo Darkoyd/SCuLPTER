@@ -1,0 +1,12 @@
+# sbt target folders
+target/
+
+# eclipse project files
+/.settings
+/.classpath
+/.project
+.metals
+.bsp
+.vscode
+.bloop
+node_modules/
