@@ -10,8 +10,33 @@ Next steps include adding better tooling and more DX utilities such as error hin
 
 ### Setup
 
+#### Dependencies
 To run SCuLPTER locally you need:
 
 - sbt
 - node.js
+
+#### Run locally
+Having the dependencies, running is as simple as
+
+Start the SBT server with
+```
+sbt 
+```
+
+Then initializing the Scala.js linker with 
+
+```
+fastLinkJS
+// OR
+~fastLinkJS //For live updates on file change
+```
+
+Lastly, start the local web server with Vite using
+
+```
+npm run dev
+```
+
+
 
