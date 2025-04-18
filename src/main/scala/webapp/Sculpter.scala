@@ -116,23 +116,133 @@ MUL g     // g now contains 12
         }
 
         div(
-            h1("SCuLPT IDE"),
+            h1("SCuLPTER"),
+            h2("Simple Cubic Language for Programming Tasks Execution and Runtime"),
             
             div(
-                className := "editor-container",
+                className := "main-container",
+                // Interpreter (now on the left)
                 div(
-                    className := "input-section",
+                    className := "interpreter-container",
+                    flex := "0 0 300px",
+                    display <-- isParsed.signal.map(parsed => if (parsed) "block" else "none"),
+                    
+                    h3("Interpreter"),
+                    
+                    div(
+                        className := "interpreter-controls",
+                        
+                        div(
+                            className := "execution-info",
+                            span("Statement: "),
+                            span(
+                                child.text <-- currentStmtVar.signal.map(_.toString)
+                            ),
+                            span(" / "),
+                            span(
+                                child.text <-- totalStmtsVar.signal.map(_.toString)
+                            )
+                        ),
+                        
+                        div(
+                            className := "button-row",
+                            button(
+                                "Step Back",
+                                disabled <-- canStepBackwardVar.signal.map(!_),
+                                onClick --> Observer[Any](_ => {
+                                    if (InterpreterInstance.stepBackward()) {
+                                        currentStacksVar.set(InterpreterInstance.getStacksState())
+                                        currentStmtVar.set(InterpreterInstance.getCurrentStatement())
+                                        canStepForwardVar.set(true)
+                                        canStepBackwardVar.set(InterpreterInstance.getCurrentStatement() > 0)
+                                    }
+                                })
+                            ),
+                            
+                            button(
+                                "Step Forward",
+                                disabled <-- canStepForwardVar.signal.map(!_),
+                                onClick --> Observer[Any](_ => {
+                                    try {
+                                        if (InterpreterInstance.stepForward()) {
+                                            currentStacksVar.set(InterpreterInstance.getStacksState())
+                                            currentStmtVar.set(InterpreterInstance.getCurrentStatement())
+                                            canStepBackwardVar.set(true)
+                                            canStepForwardVar.set(InterpreterInstance.getCurrentStatement() < InterpreterInstance.getTotalStatements())
+                                            
+                                            if (InterpreterInstance.didSkipInstruction()) {
+                                                dom.window.alert("QUESTION operation evaluated to <= 0, skipping next instruction")
+                                            }
+                                        } else {
+                                            canStepForwardVar.set(false)
+                                        }
+                                    } catch {
+                                        case e: Exception =>
+                                            dom.window.alert(s"Runtime Error: ${e.getMessage()}")
+                                    }
+                                })
+                            ),
+                            
+                            button(
+                                "Reset",
+                                onClick --> Observer[Any](_ => {
+                                    InterpreterInstance.reset(Parser(Lexer.tokens))
+                                    currentStacksVar.set(InterpreterInstance.getStacksState())
+                                    currentStmtVar.set(InterpreterInstance.getCurrentStatement())
+                                    canStepForwardVar.set(InterpreterInstance.getTotalStatements() > 0)
+                                    canStepBackwardVar.set(false)
+                                })
+                            )
+                        )
+                    ),
+                    
+                    div(
+                        className := "stacks-container",
+                        h4("Stacks"),
+                        
+                        div(
+                            className := "stacks-view",
+                            
+                            children <-- currentStacksVar.signal.map(stacks => 
+                                if (stacks.isEmpty) 
+                                    List(p("No stacks defined yet. Execute code to see stacks."))
+                                else 
+                                    stacks.toList.map { case (name, values) => 
+                                        div(
+                                            className := "stack",
+                                            h5(s"Stack: $name"),
+                                            ul(
+                                                className := "stack-items",
+                                                values.map(optValue => li(
+                                                    optValue match {
+                                                        case Some(value) => value.toString
+                                                        case None => "nil"
+                                                    }
+                                                ))
+                                            )
+                                        )
+                                    }
+                            )
+                        )
+                    )
+                ),
+                
+                // Editor section (now on the right)
+                div(
+                    className := "editor-section",
+                    flex := "1",
                     h3("Input"),
                     textArea(
                         typ := "text",
                         placeholder := "Type your SCuLPT code here...",
                         rows := 15,
-                        cols := 60,
+                        width := "100%",
                         value <-- textVar.signal, 
                         onInput.mapToValue --> textVar
                     ),
                     
-                    div(className := "button-row",
+                    div(
+                        className := "button-row",
                         button(
                             "Clear",
                             onClick --> Observer[Any](_ => {
@@ -199,12 +309,19 @@ MUL g     // g now contains 12
                             })
                         )
                     )
-                ),
+                )
+            ),
+            
+            // Lexer and Parser outputs (now at the bottom)
+            div(
+                className := "output-container",
+                marginTop := "20px",
                 
                 div(
-                    className := "output-container",
+                    className := "output-row",
                     div(
                         className := "output-section",
+                        width := "50%",
                         h3("Lexer Output"),
                         div(
                             className := "lexer-output",
@@ -226,6 +343,7 @@ MUL g     // g now contains 12
                     
                     div(
                         className := "output-section",
+                        width := "50%",
                         h3("Parser Output"),
                         div(
                             className := "parser-output",
@@ -248,127 +366,22 @@ MUL g     // g now contains 12
                 )
             ),
             
-            div(
-                className := "interpreter-container",
-                display <-- isParsed.signal.map(parsed => if (parsed) "block" else "none"),
-                
-                h3("Interpreter"),
-                
-                div(
-                    className := "interpreter-controls",
-                    
-                    div(
-                        className := "execution-info",
-                        span("Statement: "),
-                        span(
-                            child.text <-- currentStmtVar.signal.map(_.toString)
-                        ),
-                        span(" / "),
-                        span(
-                            child.text <-- totalStmtsVar.signal.map(_.toString)
-                        )
-                    ),
-                    
-                    div(
-                        className := "button-row",
-                        button(
-                            "Step Back",
-                            disabled <-- canStepBackwardVar.signal.map(!_),
-                            onClick --> Observer[Any](_ => {
-                                if (InterpreterInstance.stepBackward()) {
-                                    currentStacksVar.set(InterpreterInstance.getStacksState())
-                                    currentStmtVar.set(InterpreterInstance.getCurrentStatement())
-                                    canStepForwardVar.set(true)
-                                    canStepBackwardVar.set(InterpreterInstance.getCurrentStatement() > 0)
-                                }
-                            })
-                        ),
-                        
-                        button(
-                            "Step Forward",
-                            disabled <-- canStepForwardVar.signal.map(!_),
-                            onClick --> Observer[Any](_ => {
-                                try {
-                                    if (InterpreterInstance.stepForward()) {
-                                        currentStacksVar.set(InterpreterInstance.getStacksState())
-                                        currentStmtVar.set(InterpreterInstance.getCurrentStatement())
-                                        canStepBackwardVar.set(true)
-                                        canStepForwardVar.set(InterpreterInstance.getCurrentStatement() < InterpreterInstance.getTotalStatements())
-                                        
-                                        if (InterpreterInstance.didSkipInstruction()) {
-                                            dom.window.alert("QUESTION operation evaluated to <= 0, skipping next instruction")
-                                        }
-                                    } else {
-                                        canStepForwardVar.set(false)
-                                    }
-                                } catch {
-                                    case e: Exception =>
-                                        dom.window.alert(s"Runtime Error: ${e.getMessage()}")
-                                }
-                            })
-                        ),
-                        
-                        button(
-                            "Reset",
-                            onClick --> Observer[Any](_ => {
-                                InterpreterInstance.reset(Parser(Lexer.tokens))
-                                currentStacksVar.set(InterpreterInstance.getStacksState())
-                                currentStmtVar.set(InterpreterInstance.getCurrentStatement())
-                                canStepForwardVar.set(InterpreterInstance.getTotalStatements() > 0)
-                                canStepBackwardVar.set(false)
-                            })
-                        )
-                    )
-                ),
-                
-                div(
-                    className := "stacks-container",
-                    h4("Stacks"),
-                    
-                    div(
-                        className := "stacks-view",
-                        
-                        children <-- currentStacksVar.signal.map(stacks => 
-                            if (stacks.isEmpty) 
-                                List(p("No stacks defined yet. Execute code to see stacks."))
-                            else 
-                                stacks.toList.map { case (name, values) => 
-                                    div(
-                                        className := "stack",
-                                        h5(s"Stack: $name"),
-                                        ul(
-                                            className := "stack-items",
-                                            values.map(optValue => li(
-                                                optValue match {
-                                                    case Some(value) => value.toString
-                                                    case None => "nil"
-                                                }
-                                            ))
-                                        )
-                                    )
-                                }
-                        )
-                    )
-                )
-            ),
-            
             styleTag("""
-                .editor-container {
+                .main-container {
                     display: flex;
                     gap: 20px;
                     margin-top: 20px;
                 }
-                .input-section {
-                    flex: 1;
-                }
-                .output-container {
-                    flex: 1;
+                .editor-section {
                     display: flex;
                     flex-direction: column;
-                    gap: 20px;
                 }
-                .output-section {
-                    flex: 1;
+                .output-container {
+                    width: 100%;
+                }
+                .output-row {
+                    display: flex;
+                    gap: 20px;
                 }
                 .button-row {
                     margin-top: 10px;
@@ -376,8 +389,8 @@ MUL g     // g now contains 12
                     gap: 10px;
                 }
                 textarea {
-                    width: 100%;
                     font-family: monospace;
+                    resize: vertical;
                 }
                 h1 {
                     color: #333;
@@ -398,10 +411,10 @@ MUL g     // g now contains 12
                     cursor: not-allowed;
                 }
                 .interpreter-container {
-                    margin-top: 20px;
                     padding: 20px;
                     border: 1px solid #ddd;
                     border-radius: 4px;
+                    background-color: #f9f9f9;
                 }
                 .execution-info {
                     margin-bottom: 10px;
@@ -411,15 +424,14 @@ MUL g     // g now contains 12
                 }
                 .stacks-view {
                     display: flex;
-                    flex-wrap: wrap;
-                    gap: 20px;
+                    flex-direction: column;
+                    gap: 10px;
                 }
                 .stack {
                     border: 1px solid #ccc;
                     border-radius: 4px;
                     padding: 10px;
-                    min-width: 150px;
-                    background-color: #f9f9f9;
+                    background-color: #fff;
                 }
                 .stack h5 {
                     margin-top: 0;
