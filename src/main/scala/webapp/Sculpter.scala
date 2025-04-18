@@ -63,7 +63,6 @@ MUL g     // g now contains 12
         val hasParseError = Var(false)
         val isParsed = Var(false)
         
-        // Interpreter state
         val currentStacksVar = Var[Map[String, List[Option[Double]]]](Map())
         val currentStmtVar = Var(0)
         val totalStmtsVar = Var(0)
@@ -145,7 +144,6 @@ MUL g     // g now contains 12
                         button(
                             "Lex",
                             onClick --> Observer[Any](_ => {
-                                // Reset the lexer state
                                 Lexer.hadError = false
                                 Lexer.tokens = List()
                                 Lexer.start = 0
@@ -153,15 +151,12 @@ MUL g     // g now contains 12
                                 Lexer.line = 1
                                 Lexer.source = textVar.now()
                                 
-                                // Run the lexer
                                 val tokens = Lexer.scanTokens()
                                 
-                                // Convert tokens to string representation for display
                                 val tokenStrings = tokens.map(token => 
                                     s"Line ${token.line}: ${token.tokenType} '${token.lexeme}' ${if (token.literal != null) token.literal else ""}"
                                 )
                                 
-                                // Update the output variable
                                 lexerOutputVar.set(tokenStrings)
                                 hasParseError.set(false)
                                 parserOutputVar.set("")
@@ -173,7 +168,6 @@ MUL g     // g now contains 12
                         button(
                             "Parse",
                             onClick --> Observer[Any](_ => {
-                                // First run the lexer
                                 Lexer.hadError = false
                                 Lexer.tokens = List()
                                 Lexer.start = 0
@@ -183,13 +177,11 @@ MUL g     // g now contains 12
                                 
                                 val tokens = Lexer.scanTokens()
                                 
-                                // Then run the parser
                                 try {
                                     val ast = Parser(tokens)
                                     parserOutputVar.set(formatASTNode(ast))
                                     hasParseError.set(false)
                                     
-                                    // Reset and prepare interpreter
                                     InterpreterInstance.reset(ast)
                                     currentStacksVar.set(InterpreterInstance.getStacksState())
                                     currentStmtVar.set(InterpreterInstance.getCurrentStatement())
@@ -223,7 +215,6 @@ MUL g     // g now contains 12
                             backgroundColor := "#f5f5f5",
                             fontFamily := "monospace",
                             
-                            // Display each token on a new line
                             children <-- lexerOutputVar.signal.map(tokens => 
                                 if (tokens.isEmpty) 
                                     List(p("No tokens to display. Enter some code and click 'Lex'."))
@@ -246,7 +237,6 @@ MUL g     // g now contains 12
                             fontFamily := "monospace",
                             color <-- hasParseError.signal.map(hasError => if (hasError) "red" else "black"),
                             
-                            // Display the AST
                             children <-- parserOutputVar.signal.map(output => 
                                 if (output.isEmpty) 
                                     List(p("No AST to display. Enter some code and click 'Parse'."))
@@ -258,7 +248,6 @@ MUL g     // g now contains 12
                 )
             ),
             
-            // Interpreter UI section
             div(
                 className := "interpreter-container",
                 display <-- isParsed.signal.map(parsed => if (parsed) "block" else "none"),
@@ -306,7 +295,6 @@ MUL g     // g now contains 12
                                         canStepBackwardVar.set(true)
                                         canStepForwardVar.set(InterpreterInstance.getCurrentStatement() < InterpreterInstance.getTotalStatements())
                                         
-                                        // Check if we skipped an instruction due to QUESTION operation
                                         if (InterpreterInstance.didSkipInstruction()) {
                                             dom.window.alert("QUESTION operation evaluated to <= 0, skipping next instruction")
                                         }
@@ -340,7 +328,6 @@ MUL g     // g now contains 12
                     div(
                         className := "stacks-view",
                         
-                        // Display stacks
                         children <-- currentStacksVar.signal.map(stacks => 
                             if (stacks.isEmpty) 
                                 List(p("No stacks defined yet. Execute code to see stacks."))
@@ -365,7 +352,6 @@ MUL g     // g now contains 12
                 )
             ),
             
-            // Add some basic styling
             styleTag("""
                 .editor-container {
                     display: flex;

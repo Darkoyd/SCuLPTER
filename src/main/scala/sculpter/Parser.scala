@@ -12,7 +12,6 @@ object Parser:
     program()
   end apply
   
-  // Parse a complete program
   def program(): Program =
     var statements = List[Statement]()
     
@@ -29,43 +28,37 @@ object Parser:
     Program(statements)
   end program
   
-  // Parse a single statement
   def statement(): Statement =
-    // Check if this is a unary or binary statement
     val token = peek()
     token.tokenType match
-      // These can be either binary or unary operations depending on token count
+
+      
       case TokenType.ADD | TokenType.SUB | TokenType.MUL | 
-           TokenType.DIV | TokenType.MOD =>
+           TokenType.DIV | TokenType.MOD | TokenType.CMP =>
         
         val operator = advance()
         val first = expression()
         
-        // Check if there's another expression (makes it binary)
         if (!check(TokenType.ENTER) && !check(TokenType.EOF)) {
-          // For binary arithmetic, the second argument must be a number
-          val second = if (peek().tokenType == TokenType.NUMBER || peek().tokenType == TokenType.NUM_NEG) {
+          val second = if (peek().tokenType == TokenType.NUMBER || 
+                           peek().tokenType == TokenType.NUM_NEG || 
+                           peek().tokenType == TokenType.NIL) {
             expression()
           } else {
-            throw error(peek(), "Second argument of binary arithmetic must be a number")
+            throw error(peek(), "Second argument of binary arithmetic must be a number or nil")
           }
           
-          // Optional newline after statement
           if (check(TokenType.ENTER)) advance()
           AST.createBinaryStmt(operator.tokenType, first, second)
         } else {
-          // Unary format - applies to top two values on the stack
-          // Optional newline after statement
           if (check(TokenType.ENTER)) advance()
           AST.createUnaryStmt(operator.tokenType, first)
         }
       
-      // Always binary operations
       case TokenType.PUSH | TokenType.MOV =>
         binary()
         
-      // Always unary operations  
-      case TokenType.QUESTION | TokenType.JMP | TokenType.CMP |
+      case TokenType.QUESTION | TokenType.JMP |
            TokenType.POP | TokenType.DUP | TokenType.NEG =>
         unary()
         
@@ -73,33 +66,27 @@ object Parser:
         throw error(token, s"Expected statement, got ${token.tokenType}")
   end statement
   
-  // Parse a unary statement
   def unary(): UnaryStatement =
     val operator = advance()
     val operand = expression()
     
-    // Optional newline after statement
     if (check(TokenType.ENTER)) advance()
     
     AST.createUnaryStmt(operator.tokenType, operand)
   end unary
   
-  // Parse a binary statement
   def binary(): BinaryStatement =
     val operator = advance()
     val left = expression()
     val right = expression()
     
-    // Optional newline after statement
     if (check(TokenType.ENTER)) advance()
     
     AST.createBinaryStmt(operator.tokenType, left, right)
   end binary
   
-  // Parse an expression
   def expression(): Expr =
     if (matchToken(TokenType.NUM_NEG)) {
-      // Handle negative numbers
       val numToken = consume(TokenType.NUMBER, "Expected number after '-'")
       val value = -numToken.literal.asInstanceOf[Double]
       val token = Token(TokenType.NUMBER, "-" + numToken.lexeme, value, numToken.line)
@@ -115,7 +102,6 @@ object Parser:
     }
   end expression
 
-  // Token handling methods
   def matchToken(tokenType: TokenType): Boolean =
     if (check(tokenType)) {
       advance()
@@ -178,7 +164,6 @@ object Parser:
         | TokenType.QUESTION | TokenType.JMP | TokenType.CMP =>
           return
         case _ =>
-          // Do nothing
       end match
       advance()
     }
