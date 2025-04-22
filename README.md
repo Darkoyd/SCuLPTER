@@ -39,7 +39,14 @@ fastLinkJS
 ~fastLinkJS //For live updates on file change
 ```
 
-Lastly, start the local web server with Vite on a separate terminal using
+Next, install the Node dependencies on a different terminal with
+
+```
+npm install
+```
+
+
+Lastly, start the local web server with Vite using
 
 ```
 npm run dev
