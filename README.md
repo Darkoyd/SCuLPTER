@@ -25,7 +25,7 @@ To run SCuLPTER locally you need:
 
 Having the dependencies, running is as simple as
 
-Start the SBT server with
+Start the sbt server with
 
 ```
 sbt 
