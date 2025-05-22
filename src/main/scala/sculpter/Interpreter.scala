@@ -249,8 +249,7 @@ class Interpreter:
       if (b == 0) throw new RuntimeException("Modulo by zero")
       else a % b
     case TokenType.CMP =>
-      if (a == b) 0.0
-      else if (a < b) -1.0
+      if (a < b) -1.0
       else 1.0
     case _ => throw new RuntimeException(s"Unsupported arithmetic operation: $op")
   
