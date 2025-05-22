@@ -54,17 +54,37 @@ class Interpreter:
   private def executeUnary(operation: TokenType, operand: Expr): Unit = 
     operation match
       case TokenType.QUESTION =>
-        evaluateExpr(operand) match {
-          case None => 
-            currentStatement += 1
-            skippedInstruction = true
-          case Some(value) =>
-            if (value <= 0) {
-              currentStatement += 1
-              skippedInstruction = true
-            }
-        }
-        
+          operand match
+            case StackExpr(name) => 
+                ensureStackExists(name)
+                if (stacks(name).nonEmpty) {
+                  val value = stacks(name).head
+                  stacks = stacks.updated(name, stacks(name).tail)
+                  
+                  value match {
+                    case None => 
+                      currentStatement += 1
+                      skippedInstruction = true
+                    case Some(v) =>
+                      if (v <= 0) {
+                        currentStatement += 1
+                        skippedInstruction = true
+                      }
+                  }
+                } else {
+                  throw new RuntimeException(s"Cannot QUESTION from empty stack $name")
+                }
+            case _ => 
+                evaluateExpr(operand) match {
+                  case None => 
+                    currentStatement += 1
+                    skippedInstruction = true
+                  case Some(value) =>
+                    if (value <= 0) {
+                      currentStatement += 1
+                      skippedInstruction = true
+                    }
+                }
       case TokenType.POP =>
         operand match
           case StackExpr(name) => 
