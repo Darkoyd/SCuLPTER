@@ -1,0 +1,76 @@
+/* Under construction and placeholder page styles */
+.under-construction,
+.redirect-page {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--surface-color);
+  border-radius: 12px;
+  margin-top: 2rem;
+  border: 1px solid var(--border-color);
+}
+
+.construction-icon,
+.redirect-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.under-construction h1,
+.redirect-page h1 {
+  color: var(--text-accent);
+  margin-bottom: 1rem;
+  font-size: 2rem;
+}
+
+.under-construction p,
+.redirect-page p {
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.under-construction .btn-primary,
+.redirect-page .btn-primary {
+  margin-top: 1.5rem;
+  padding: 0.875rem 2rem;
+  font-size: 1rem;
+}
+
+.redirect-page a {
+  color: var(--primary-light);
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.redirect-page a:hover {
+  color: var(--primary-color);
+}
+
+/* Responsive construction pages */
+@media (max-width: 768px) {
+  .under-construction,
+  .redirect-page {
+    padding: 3rem 1.5rem;
+    margin-top: 1rem;
+  }
+  
+  .construction-icon,
+  .redirect-icon {
+    font-size: 3rem;
+  }
+  
+  .under-construction h1,
+  .redirect-page h1 {
+    font-size: 1.75rem;
+  }
+  
+  .under-construction p,
+  .redirect-page p {
+    font-size: 1rem;
+  }
+}

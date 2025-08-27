@@ -1,0 +1,191 @@
+/* Global styles and variables - Dark Theme */
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  
+  color: #cbd5e1;
+  background-color: #0f172a;
+  
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Dark Color palette with darker blue theme */
+  --primary-color: #0d0f8c;
+  --primary-dark: #0a0c6b;
+  --primary-light: #1a1fa3;
+  --secondary-color: #8b92a5;
+  --background-color: #0f172a;
+  --surface-color: #1e293b;
+  --surface-light: #334155;
+  --text-color: #cbd5e1;
+  --text-muted: #8b92a5;
+  --text-accent: #e1e7ed;
+  --border-color: #334155;
+  --border-light: #475569;
+  --success-color: #10b981;
+  --success-hover: #059669;
+  --error-color: #dc2626;
+  --warning-color: #d97706;
+}
+
+/* Reset and base styles */
+body {
+  margin: 0;
+  display: flex;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+#app {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Typography */
+h1 {
+  font-size: 2em;
+  line-height: 1.1;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--text-accent);
+}
+
+h2 {
+  color: var(--text-accent);
+  margin-bottom: 2rem;
+}
+
+h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: #7ca8f3;
+}
+
+h4, h5 {
+  color: var(--text-color);
+}
+
+p {
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* Layout components */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  width: 100%;
+}
+
+/* Button styles */
+button {
+  border-radius: 4px;
+  border: 1px solid transparent;
+  padding: 0.5em 1em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: var(--primary-color);
+  color: white;
+  cursor: pointer;
+  transition: border-color 0.25s, background-color 0.25s;
+}
+
+button:hover {
+  background-color: var(--primary-dark);
+}
+
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Form elements */
+textarea {
+  width: 100%;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-color);
+  color: var(--text-color);
+  resize: vertical;
+}
+
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
+textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+/* Utility classes */
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--text-accent);
+  padding: 0.75rem 1.5rem;
+  border: 2px solid var(--text-accent);
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: var(--text-accent);
+  color: var(--primary-color);
+}
+
+/* Generic page container */
+.page-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+  }
+  
+  .page-container {
+    padding: 1rem;
+  }
+}

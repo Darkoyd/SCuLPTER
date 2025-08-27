@@ -56,6 +56,66 @@ button:focus-visible {
 }
 
 #app {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.navbar {
+  background-color: #4f46e5;
+  color: white;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.navbar-title {
+  margin: 0;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.navbar-subtitle {
+  font-size: 0.875rem;
+  opacity: 0.9;
+  margin-top: 0.25rem;
+}
+
+.navbar-nav {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.25s;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-link.active {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.main-content {
+  flex: 1;
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
@@ -104,5 +164,20 @@ textarea {
 @media (max-width: 768px) {
   .editor-container {
     flex-direction: column;
+  }
+  
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .navbar-nav {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .main-content {
+    padding: 1rem;
   }
 }
