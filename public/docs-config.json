@@ -1,0 +1,219 @@
+{
+  "generated": "2025-09-02T05:19:29.278Z",
+  "sections": [
+    {
+      "id": "introduction",
+      "title": "Introduction",
+      "filename": "01-introduction.md",
+      "order": 1,
+      "headers": [
+        {
+          "level": 1,
+          "title": "Introduction",
+          "id": "introduction"
+        },
+        {
+          "level": 2,
+          "title": "What is SCuLPT?",
+          "id": "what-is-sculpt"
+        },
+        {
+          "level": 3,
+          "title": "Key Features",
+          "id": "key-features"
+        },
+        {
+          "level": 3,
+          "title": "Philosophy",
+          "id": "philosophy"
+        },
+        {
+          "level": 2,
+          "title": "Who is SCuLPT for?",
+          "id": "who-is-sculpt-for"
+        },
+        {
+          "level": 2,
+          "title": "Getting Help",
+          "id": "getting-help"
+        }
+      ],
+      "navigation": [
+        {
+          "id": "introduction",
+          "title": "Introduction",
+          "level": 1,
+          "children": [
+            {
+              "id": "what-is-sculpt",
+              "title": "What is SCuLPT?",
+              "level": 2,
+              "children": [
+                {
+                  "id": "key-features",
+                  "title": "Key Features",
+                  "level": 3,
+                  "children": []
+                },
+                {
+                  "id": "philosophy",
+                  "title": "Philosophy",
+                  "level": 3,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "who-is-sculpt-for",
+              "title": "Who is SCuLPT for?",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "getting-help",
+              "title": "Getting Help",
+              "level": 2,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "getting-started",
+      "title": "Getting Started",
+      "filename": "02-getting-started.md",
+      "order": 2,
+      "headers": [
+        {
+          "level": 1,
+          "title": "Getting Started",
+          "id": "getting-started"
+        },
+        {
+          "level": 2,
+          "title": "Physical Approach",
+          "id": "physical-approach"
+        },
+        {
+          "level": 3,
+          "title": "Requirements",
+          "id": "requirements"
+        },
+        {
+          "level": 4,
+          "title": "Recommended starting parts",
+          "id": "recommended-starting-parts"
+        },
+        {
+          "level": 4,
+          "title": "Printing the Components",
+          "id": "printing-the-components"
+        },
+        {
+          "level": 2,
+          "title": "Digital Approach",
+          "id": "digital-approach"
+        },
+        {
+          "level": 3,
+          "title": "Using SCuLPTER",
+          "id": "using-sculpter"
+        },
+        {
+          "level": 4,
+          "title": "Lexing vs Parsing",
+          "id": "lexing-vs-parsing"
+        },
+        {
+          "level": 4,
+          "title": "Saving and Loading Code",
+          "id": "saving-and-loading-code"
+        },
+        {
+          "level": 4,
+          "title": "Running Code",
+          "id": "running-code"
+        },
+        {
+          "level": 2,
+          "title": "What's Next?",
+          "id": "whats-next"
+        }
+      ],
+      "navigation": [
+        {
+          "id": "getting-started",
+          "title": "Getting Started",
+          "level": 1,
+          "children": [
+            {
+              "id": "physical-approach",
+              "title": "Physical Approach",
+              "level": 2,
+              "children": [
+                {
+                  "id": "requirements",
+                  "title": "Requirements",
+                  "level": 3,
+                  "children": [
+                    {
+                      "id": "recommended-starting-parts",
+                      "title": "Recommended starting parts",
+                      "level": 4,
+                      "children": []
+                    },
+                    {
+                      "id": "printing-the-components",
+                      "title": "Printing the Components",
+                      "level": 4,
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "digital-approach",
+              "title": "Digital Approach",
+              "level": 2,
+              "children": [
+                {
+                  "id": "using-sculpter",
+                  "title": "Using SCuLPTER",
+                  "level": 3,
+                  "children": [
+                    {
+                      "id": "lexing-vs-parsing",
+                      "title": "Lexing vs Parsing",
+                      "level": 4,
+                      "children": []
+                    },
+                    {
+                      "id": "saving-and-loading-code",
+                      "title": "Saving and Loading Code",
+                      "level": 4,
+                      "children": []
+                    },
+                    {
+                      "id": "running-code",
+                      "title": "Running Code",
+                      "level": 4,
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "whats-next",
+              "title": "What's Next?",
+              "level": 2,
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import './src/main/resources/styles/components/navbar.css'
 import './src/main/resources/styles/components/ide.css'
 import './src/main/resources/styles/pages/home.css'
 import './src/main/resources/styles/pages/construction.css'
+import './src/main/resources/styles/pages/documentation.css'
 
 // Import Scala.js generated code
 import 'scalajs:main.js'
