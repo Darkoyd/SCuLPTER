@@ -13,3 +13,5 @@ node_modules/
 
 # Deploy artifacts
 dist/
+
+CLAUDE.md

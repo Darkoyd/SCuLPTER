@@ -4,6 +4,17 @@ import com.raquo.laminar.api.L.{*, given}
 import webapp.Router
 
 object Layout:
+    // Helper function to determine active class based on route
+    private def isRouteActive(currentRoute: webapp.Route, targetRoute: webapp.Route): Boolean =
+        (currentRoute, targetRoute) match {
+            case (webapp.HomeRoute, webapp.HomeRoute) => true
+            case (webapp.SculpterRoute, webapp.SculpterRoute) => true
+            case (webapp.DocumentationRoute(_, _), webapp.DocumentationRoute(_, _)) => true
+            case (webapp.ExamplesRoute, webapp.ExamplesRoute) => true
+            case (webapp.GitHubRoute, webapp.GitHubRoute) => true
+            case _ => false
+        }
+
     def navbar(): Element =
         div(
             className := "navbar",
@@ -15,33 +26,43 @@ object Layout:
             div(
                 className := "navbar-nav",
                 a(
-                    "Home", 
-                    href := "#", 
-                    className <-- Router.currentRoute.map(route => if (route.toString == "HomeRoute") "nav-link active" else "nav-link"), 
+                    "Home",
+                    href := "#",
+                    className <-- Router.currentRoute.map(route =>
+                        if (isRouteActive(route, webapp.HomeRoute)) "nav-link active" else "nav-link"
+                    ),
                     onClick.preventDefault --> (_ => Router.navigateTo("home"))
                 ),
                 a(
-                    "SCuLPTER", 
-                    href := "#", 
-                    className <-- Router.currentRoute.map(route => if (route.toString == "SculpterRoute") "nav-link active" else "nav-link"), 
+                    "SCuLPTER",
+                    href := "#",
+                    className <-- Router.currentRoute.map(route =>
+                        if (isRouteActive(route, webapp.SculpterRoute)) "nav-link active" else "nav-link"
+                    ),
                     onClick.preventDefault --> (_ => Router.navigateTo("sculpter"))
                 ),
                 a(
-                    "Documentation", 
-                    href := "#", 
-                    className <-- Router.currentRoute.map(route => if (route.toString == "DocumentationRoute") "nav-link active" else "nav-link"), 
+                    "Documentation",
+                    href := "#",
+                    className <-- Router.currentRoute.map(route =>
+                        if (isRouteActive(route, webapp.DocumentationRoute())) "nav-link active" else "nav-link"
+                    ),
                     onClick.preventDefault --> (_ => Router.navigateTo("documentation"))
                 ),
                 a(
-                    "Examples", 
-                    href := "#", 
-                    className <-- Router.currentRoute.map(route => if (route.toString == "ExamplesRoute") "nav-link active" else "nav-link"), 
+                    "Examples",
+                    href := "#",
+                    className <-- Router.currentRoute.map(route =>
+                        if (isRouteActive(route, webapp.ExamplesRoute)) "nav-link active" else "nav-link"
+                    ),
                     onClick.preventDefault --> (_ => Router.navigateTo("examples"))
                 ),
                 a(
-                    "More SCuLPT", 
-                    href := "#", 
-                    className <-- Router.currentRoute.map(route => if (route.toString == "GitHubRoute") "nav-link active" else "nav-link"), 
+                    "More SCuLPT",
+                    href := "#",
+                    className <-- Router.currentRoute.map(route =>
+                        if (isRouteActive(route, webapp.GitHubRoute)) "nav-link active" else "nav-link"
+                    ),
                     onClick.preventDefault --> (_ => Router.navigateTo("github"))
                 )
             )

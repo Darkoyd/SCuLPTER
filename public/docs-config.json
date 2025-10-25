@@ -1,5 +1,5 @@
 {
-  "generated": "2025-09-02T05:19:29.278Z",
+  "generated": "2025-10-25T02:49:48.587Z",
   "sections": [
     {
       "id": "introduction",
@@ -208,6 +208,39 @@
             {
               "id": "whats-next",
               "title": "What's Next?",
+              "level": 2,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "start-sculpting",
+      "title": "Start Sculpting",
+      "filename": "03-start-sculpting.md",
+      "order": 3,
+      "headers": [
+        {
+          "level": 1,
+          "title": "Start Sculpting!",
+          "id": "start-sculpting"
+        },
+        {
+          "level": 2,
+          "title": "Blocks of all shapes and colours",
+          "id": "blocks-of-all-shapes-and-colours"
+        }
+      ],
+      "navigation": [
+        {
+          "id": "start-sculpting",
+          "title": "Start Sculpting!",
+          "level": 1,
+          "children": [
+            {
+              "id": "blocks-of-all-shapes-and-colours",
+              "title": "Blocks of all shapes and colours",
               "level": 2,
               "children": []
             }

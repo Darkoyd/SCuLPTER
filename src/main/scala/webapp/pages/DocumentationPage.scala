@@ -14,6 +14,7 @@ case class DocsConfig(generated: String, sections: List[DocSection])
 
 object DocumentationPage:
     private val currentChapter = Var("introduction")
+    private val currentSubsection = Var(Option.empty[String])
     private val docsConfig = Var(Option.empty[DocsConfig])
     private val expandedSections = Var(Set[String]("introduction", "getting-started")) // Start with sections expanded
     
@@ -218,6 +219,10 @@ object DocumentationPage:
                 val tableData = parseTable(lines, i)
                 elements += tableData._1
                 i = tableData._2 - 1 // Adjust for the increment at end of loop
+            } else if (line.startsWith("![")) {
+                // Image detection
+                val imageElement = parseImage(line)
+                elements += imageElement
             } else if (line.nonEmpty) {
                 // Regular paragraph with inline formatting
                 elements += p(parseInlineFormatting(line))
@@ -234,7 +239,34 @@ object DocumentationPage:
             .replaceAll("\\s+", "-")
             .replaceAll("-+", "-")
             .replaceAll("^-|-$", "")
-    
+
+    private def parseImage(line: String): Element =
+        // Parse markdown image syntax: ![alt text](url) or ![alt text | center](url)
+        val closingBracket = line.indexOf(']')
+        if (closingBracket != -1 && closingBracket + 1 < line.length && line.charAt(closingBracket + 1) == '(') {
+            val closingParen = line.indexOf(')', closingBracket + 2)
+            if (closingParen != -1) {
+                val altAndOptions = line.substring(2, closingBracket)
+                val imageUrl = line.substring(closingBracket + 2, closingParen)
+
+                // Check for centering option (![alt text | center](url))
+                val parts = altAndOptions.split("\\|").map(_.trim)
+                val altText = parts(0)
+                val isCentered = parts.length > 1 && parts(1).toLowerCase == "center"
+
+                val imgElement = img(src := imageUrl, alt := altText, className := "docs-image")
+                if (isCentered) {
+                    div(className := "docs-image-center", imgElement)
+                } else {
+                    div(className := "docs-image-wrapper", imgElement)
+                }
+            } else {
+                p(s"Invalid image syntax: $line")
+            }
+        } else {
+            p(s"Invalid image syntax: $line")
+        }
+
     private def scrollToElement(elementId: String): Unit =
         import org.scalajs.dom
         dom.window.setTimeout(() => {
@@ -279,7 +311,7 @@ object DocumentationPage:
                     result.addOne(currentText: Node)
                     currentText = ""
                 }
-                
+
                 // Find the closing `
                 val closingIndex = text.indexOf('`', i + 1)
                 if (closingIndex != -1) {
@@ -288,6 +320,88 @@ object DocumentationPage:
                     i = closingIndex + 1
                 } else {
                     // No closing `, treat as regular text
+                    currentText = currentText + text.charAt(i).toString
+                    i += 1
+                }
+            } else if (text.charAt(i) == '[' && text.charAt(i) != '!') {
+                // Handle links: [text](url) - but not images which start with ![
+                if (currentText.nonEmpty) {
+                    result.addOne(currentText: Node)
+                    currentText = ""
+                }
+
+                // Find the closing ]
+                val closingBracket = text.indexOf(']', i + 1)
+                if (closingBracket != -1 && closingBracket + 1 < text.length && text.charAt(closingBracket + 1) == '(') {
+                    // Find the closing )
+                    val closingParen = text.indexOf(')', closingBracket + 2)
+                    if (closingParen != -1) {
+                        val linkText = text.substring(i + 1, closingBracket)
+                        val linkUrl = text.substring(closingBracket + 2, closingParen)
+
+                        // Determine if link is internal or external
+                        val isInternal = linkUrl.startsWith("/SCuLPTER/")
+                        val linkElement = if (isInternal) {
+                            // Internal link - use Router navigation
+                            a(
+                                href := "#",
+                                className := "docs-link",
+                                linkText,
+                                onClick.preventDefault --> (_ => handleInternalNavigation(linkUrl))
+                            )
+                        } else {
+                            // External link - open in new tab
+                            a(
+                                href := linkUrl,
+                                className := "docs-link docs-external-link",
+                                target := "_blank",
+                                rel := "noopener noreferrer",
+                                linkText
+                            )
+                        }
+                        result.addOne(linkElement)
+                        i = closingParen + 1
+                    } else {
+                        currentText = currentText + text.charAt(i).toString
+                        i += 1
+                    }
+                } else {
+                    currentText = currentText + text.charAt(i).toString
+                    i += 1
+                }
+            } else if (i < text.length - 1 && text.charAt(i) == '!' && text.charAt(i + 1) == '[') {
+                // Handle images: ![alt text](url) or ![alt text | center](url)
+                if (currentText.nonEmpty) {
+                    result.addOne(currentText: Node)
+                    currentText = ""
+                }
+
+                // Find the closing ]
+                val closingBracket = text.indexOf(']', i + 2)
+                if (closingBracket != -1 && closingBracket + 1 < text.length && text.charAt(closingBracket + 1) == '(') {
+                    // Find the closing )
+                    val closingParen = text.indexOf(')', closingBracket + 2)
+                    if (closingParen != -1) {
+                        val altAndOptions = text.substring(i + 2, closingBracket)
+                        val imageUrl = text.substring(closingBracket + 2, closingParen)
+
+                        // Check for centering option (![alt text | center](url))
+                        val parts = altAndOptions.split("\\|").map(_.trim)
+                        val altText = parts(0)
+                        val isCentered = parts.length > 1 && parts(1).toLowerCase == "center"
+
+                        val imgElement = img(src := imageUrl, alt := altText, className := "docs-image")
+                        if (isCentered) {
+                            result.addOne(div(className := "docs-image-center", imgElement))
+                        } else {
+                            result.addOne(imgElement)
+                        }
+                        i = closingParen + 1
+                    } else {
+                        currentText = currentText + text.charAt(i).toString
+                        i += 1
+                    }
+                } else {
                     currentText = currentText + text.charAt(i).toString
                     i += 1
                 }
@@ -447,6 +561,37 @@ object DocumentationPage:
             )
         }
     
+    // Handle internal navigation from markdown links
+    private def handleInternalNavigation(url: String): Unit =
+        // Parse internal URLs like /SCuLPTER/documentation/section or /SCuLPTER/examples
+        val cleanPath = url.stripPrefix("/SCuLPTER").stripSuffix("/")
+        val segments = cleanPath.split("/").filter(_.nonEmpty).map(_.toLowerCase)
+
+        segments.headOption.getOrElse("") match {
+            case "documentation" =>
+                // Documentation section link
+                val section = segments.lift(1).getOrElse("introduction")
+                val subsection = segments.lift(2)
+                import webapp.Router
+                Router.navigateToDocumentation(section, subsection)
+            case "examples" =>
+                // Examples page link
+                import webapp.Router
+                Router.navigateTo("examples")
+            case "sculpter" =>
+                // IDE link
+                import webapp.Router
+                Router.navigateTo("sculpter")
+            case "home" =>
+                // Home page link
+                import webapp.Router
+                Router.navigateTo("home")
+            case _ =>
+                // Unknown link, try to navigate as documentation section
+                import webapp.Router
+                Router.navigateToDocumentation(segments.headOption.getOrElse("introduction"), None)
+        }
+
     private def navigateToSection(sectionId: String): Unit =
         // Check if it's a main section or subsection
         docsConfig.now() match {
@@ -454,25 +599,30 @@ object DocumentationPage:
                 // Check if it's a main section
                 config.sections.find(_.id == sectionId) match {
                     case Some(section) =>
-                        // It's a main section, just load it
-                        currentChapter.set(sectionId)
+                        // It's a main section, navigate via Router
+                        import webapp.Router
+                        Router.navigateToDocumentation(sectionId, None)
                     case None =>
-                        // It's a subsection, find parent and load document, then scroll
+                        // It's a subsection, find parent and navigate
                         config.sections.find(_.navigation.exists(_.id == sectionId)) match {
                             case Some(parentSection) =>
-                                currentChapter.set(parentSection.id)
-                                // Wait for content to load, then scroll to the specific header
-                                org.scalajs.dom.window.setTimeout(() => {
-                                    scrollToElement(sectionId)
-                                }, 500) // Give more time for markdown to render
+                                import webapp.Router
+                                Router.navigateToDocumentation(parentSection.id, Some(sectionId))
                             case None =>
-                                // Fallback - just set as current chapter
-                                currentChapter.set(sectionId)
+                                // Fallback - navigate to section as main section
+                                import webapp.Router
+                                Router.navigateToDocumentation(sectionId, None)
                         }
                 }
             case None =>
-                currentChapter.set(sectionId)
+                // Config not loaded, still try to navigate
+                import webapp.Router
+                Router.navigateToDocumentation(sectionId, None)
         }
+
+    // Public method for external navigation (e.g., from markdown links)
+    def navigateToDocumentationSection(sectionId: String): Unit =
+        navigateToSection(sectionId)
     
     private def renderContent(): Element =
         div(
@@ -482,7 +632,18 @@ object DocumentationPage:
             }
         )
 
-    def render(): Element =
+    def render(initialSection: String = "introduction", initialSubsection: Option[String] = None): Element =
+        // Update the current chapter when render is called with parameters
+        currentChapter.set(initialSection)
+
+        // If a subsection is provided, scroll to it after content loads
+        if (initialSubsection.isDefined) {
+            currentSubsection.set(initialSubsection)
+            org.scalajs.dom.window.setTimeout(() => {
+                scrollToElement(initialSubsection.get)
+            }, 500)
+        }
+
         div(
             className := "docs-layout",
             renderSidebar(),
