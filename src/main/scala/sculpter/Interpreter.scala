@@ -68,7 +68,7 @@ class Interpreter:
                   currentStatement += 1
                   skippedInstruction = true
                 case Some(v) =>
-                  if (v <= -1) {
+                  if (v < 0) {
                     currentStatement += 1
                     skippedInstruction = true
                   }
@@ -105,7 +105,7 @@ class Interpreter:
             if (stacks(name).nonEmpty)
               stacks = stacks.updated(name, stacks(name).head :: stacks(name))
             else
-              stacks = stacks.updated(name, None :: stacks(name))
+              stacks = stacks.updated(name, Some(0.0) :: stacks(name))
           case _ =>
             throw new RuntimeException("Cannot DUP from non-stack expression")
 
@@ -217,7 +217,7 @@ class Interpreter:
                 .updated(to, stacks(from).head :: stacks(to))
                 .updated(from, stacks(from).tail)
             } else {
-              stacks = stacks.updated(to, None :: stacks(to))
+              stacks = stacks.updated(to, Some(0.0) :: stacks(to))
             }
           case _ =>
             throw new RuntimeException("Both operands of MOV must be stacks")
@@ -258,14 +258,12 @@ class Interpreter:
                 case None =>
                   operation match
                     case TokenType.CMP =>
-                      right match
-                        case NilExpr() =>
-                          stacks =
-                            stacks.updated(name, Some(0.0) :: stacks(name).tail)
-                        case _ =>
-                          throw new RuntimeException(
-                            "Cannot perform arithmetic on nil value"
-                          )
+                      val rightVal = right match
+                        case NilExpr() => 0.0
+                        case _ => evaluateExpr(right).getOrElse(0.0)
+                      val result = arithmeticOp(TokenType.CMP, 0.0, rightVal)
+                      stacks =
+                        stacks.updated(name, Some(result) :: stacks(name).tail)
 
                     case _ =>
                       throw new RuntimeException(
