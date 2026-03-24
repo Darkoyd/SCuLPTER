@@ -27,3 +27,11 @@ A block is composed of 5 distinctive features.
 - *Parameter Holder*: A block may have one or two of these slots. They have a magnet that holds a parameter block. Parameters tell the block what to _use_.
 - *Wedge Slot*: On the side of the block there is a slot to connect more pieces. The side of the block does _not_ serve a computational purpose, but rather a structural one. Blocks connected to or through this opening will not connect on a logic level to the current block.
 - *Output Hole*: On the opposite end of the screw there is a small hole, it fits more pieces to be connected. Other blocks connected using this hole will be connected logically, the blocks will be executed in order.
+
+To sum up, blocks hold operations and parameters, they are the core of the language.
+
+
+## Operations
+
+## Parameters
+
