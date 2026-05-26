@@ -105,7 +105,7 @@ class Interpreter:
             if (stacks(name).nonEmpty)
               stacks = stacks.updated(name, stacks(name).head :: stacks(name))
             else
-              stacks = stacks.updated(name, Some(0.0) :: stacks(name))
+              stacks = stacks.updated(name, None :: stacks(name))
           case _ =>
             throw new RuntimeException("Cannot DUP from non-stack expression")
 
@@ -150,29 +150,20 @@ class Interpreter:
                   val result = arithmeticOp(operation, b, a)
                   stacks =
                     stacks.updated(name, Some(result) :: stacks(name).drop(2))
-                case (None, None) =>
+                case _ =>
                   operation match
                     case TokenType.CMP =>
                       stacks =
-                        stacks.updated(name, Some(0.0) :: stacks(name).drop(2))
+                        stacks.updated(name, None :: stacks(name).drop(2))
                     case _ =>
                       throw new RuntimeException(
                         "Cannot perform arithmetic on nil values"
                       )
-                case _ =>
-                  throw new RuntimeException(
-                    "Cannot perform arithmetic on nil values"
-                  )
               }
             } else {
               operation match
                 case TokenType.CMP =>
-                  val (b, a): (Double, Double) = stacks(name).size match
-                    case 0 => (0.0, 0.0)
-                    case 1 => (stacks(name).head.getOrElse(0.0), 0.0)
-                    case _ => throw new RuntimeException("Unreachable")
-                  val result = arithmeticOp(TokenType.CMP, b, a)
-                  stacks = stacks.updated(name, List(Some(result)))
+                  stacks = stacks.updated(name, List(None))
                 case _ =>
                   throw new RuntimeException(
                     s"Not enough values on stack $name for operation"
@@ -217,7 +208,7 @@ class Interpreter:
                 .updated(to, stacks(from).head :: stacks(to))
                 .updated(from, stacks(from).tail)
             } else {
-              stacks = stacks.updated(to, Some(0.0) :: stacks(to))
+              stacks = stacks.updated(to, None :: stacks(to))
             }
           case _ =>
             throw new RuntimeException("Both operands of MOV must be stacks")
@@ -237,9 +228,14 @@ class Interpreter:
                       stacks =
                         stacks.updated(name, Some(result) :: stacks(name).tail)
                     case NilExpr() =>
-                      throw new RuntimeException(
-                        "Cannot perform arithmetic with nil value"
-                      )
+                      operation match
+                        case TokenType.CMP =>
+                          stacks =
+                            stacks.updated(name, None :: stacks(name).tail)
+                        case _ =>
+                          throw new RuntimeException(
+                            "Cannot perform arithmetic with nil value"
+                          )
                     case _ =>
                       evaluateExpr(right) match {
                         case Some(value) =>
@@ -250,20 +246,23 @@ class Interpreter:
                             Some(result) :: stacks(name).tail
                           )
                         case None =>
-                          throw new RuntimeException(
-                            "Cannot perform arithmetic with nil value"
-                          )
+                          operation match
+                            case TokenType.CMP =>
+                              stacks = stacks.updated(
+                                name,
+                                None :: stacks(name).tail
+                              )
+                            case _ =>
+                              throw new RuntimeException(
+                                "Cannot perform arithmetic with nil value"
+                              )
                       }
                   }
                 case None =>
                   operation match
                     case TokenType.CMP =>
-                      val rightVal = right match
-                        case NilExpr() => 0.0
-                        case _ => evaluateExpr(right).getOrElse(0.0)
-                      val result = arithmeticOp(TokenType.CMP, 0.0, rightVal)
                       stacks =
-                        stacks.updated(name, Some(result) :: stacks(name).tail)
+                        stacks.updated(name, None :: stacks(name).tail)
 
                     case _ =>
                       throw new RuntimeException(
@@ -273,9 +272,7 @@ class Interpreter:
             } else {
               operation match
                 case TokenType.CMP =>
-                  val rightVal = evaluateExpr(right).getOrElse(0.0)
-                  val result = arithmeticOp(TokenType.CMP, 0.0, rightVal)
-                  stacks = stacks.updated(name, List(Some(result)))
+                  stacks = stacks.updated(name, List(None))
                 case _ =>
                   throw new RuntimeException(s"Stack $name is empty")
             }
