@@ -27,8 +27,8 @@ PUSH b 3
 // Move top value from stack 'a' to stack 'b'
 MOV b a
 
-// Add top values of stacks 'b' and 'a' (binary form)
-ADD b a
+// Add the top two values of stack 'b' (unary form)
+ADD b
 
 // Conditional execution with QUESTION operator
 PUSH c 1   // c > 0, so next instruction will be executed
@@ -37,7 +37,7 @@ PUSH d 100 // This will be executed because c > 0
 
 PUSH c -2  // c < 0, so next instruction will be skipped
 ? c
-PUSH d 200 // This will be skipped because c <= 0
+PUSH d 200 // This will be skipped because c < 0
 
 // Arithmetic examples
 // Binary form (stack and number literal)
@@ -47,7 +47,7 @@ SUB e 2   // e now contains 5 (7-2)
 // Unary form (operating on top two stack values)
 PUSH f 3
 PUSH f 5
-SUB f     // f now contains -2 (3-5)
+SUB f     // f now contains 2 (5-3): the top of the stack is the left operand
 
 // Another unary example
 PUSH g 3
@@ -163,7 +163,7 @@ MUL g     // g now contains 12
                                             canStepForwardVar.set(InterpreterInstance.getCurrentStatement() < InterpreterInstance.getTotalStatements())
                                             
                                             if (InterpreterInstance.didSkipInstruction()) {
-                                                dom.window.alert("QUESTION operation evaluated to <= 0, skipping next instruction")
+                                                dom.window.alert("QUESTION operation evaluated to a negative value or nil, skipping next instruction")
                                             }
                                         } else {
                                             canStepForwardVar.set(false)

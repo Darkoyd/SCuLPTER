@@ -84,7 +84,7 @@ class Interpreter:
                 currentStatement += 1
                 skippedInstruction = true
               case Some(value) =>
-                if (value <= 0) {
+                if (value < 0) {
                   currentStatement += 1
                   skippedInstruction = true
                 }
@@ -128,7 +128,15 @@ class Interpreter:
             throw new RuntimeException("Cannot NEG from non-stack expression")
 
       case TokenType.JMP =>
-        evaluateExpr(operand) match {
+        val offset = operand match
+          case StackExpr(name) =>
+            ensureStackExists(name)
+            val contents = stacks(name)
+            stacks = stacks.updated(name, contents.drop(1))
+            contents.headOption.flatten
+          case _ => evaluateExpr(operand)
+
+        offset match {
           case Some(value) =>
             val jump = value.toInt
             if (jump <= program.statements.length)
@@ -139,35 +147,39 @@ class Interpreter:
             throw new RuntimeException("Cannot jump to nil")
         }
 
+      case TokenType.CMP =>
+        operand match
+          case StackExpr(name) =>
+            ensureStackExists(name)
+            val contents = stacks(name)
+            // Missing elements read as nil, so both operands are always defined.
+            val a = contents.headOption.flatten
+            val b = contents.drop(1).headOption.flatten
+            stacks = stacks.updated(name, compare(a, b) :: contents.drop(2))
+          case _ => throw new RuntimeException("Operand must be a stack")
+
       case TokenType.ADD | TokenType.SUB | TokenType.MUL | TokenType.DIV |
-          TokenType.MOD | TokenType.CMP =>
+          TokenType.MOD =>
         operand match
           case StackExpr(name) =>
             ensureStackExists(name)
             if (stacks(name).size >= 2) {
               (stacks(name)(0), stacks(name)(1)) match {
-                case (Some(b), Some(a)) =>
-                  val result = arithmeticOp(operation, b, a)
-                  stacks =
-                    stacks.updated(name, Some(result) :: stacks(name).drop(2))
-                case _ =>
-                  operation match
-                    case TokenType.CMP =>
-                      stacks =
-                        stacks.updated(name, None :: stacks(name).drop(2))
-                    case _ =>
-                      throw new RuntimeException(
-                        "Cannot perform arithmetic on nil values"
-                      )
-              }
-            } else {
-              operation match
-                case TokenType.CMP =>
-                  stacks = stacks.updated(name, List(None))
+                case (Some(a), Some(b)) =>
+                  // The top of the stack is the left operand.
+                  stacks = stacks.updated(
+                    name,
+                    arithmeticOp(operation, a, b) :: stacks(name).drop(2)
+                  )
                 case _ =>
                   throw new RuntimeException(
-                    s"Not enough values on stack $name for operation"
+                    "Cannot perform arithmetic on nil values"
                   )
+              }
+            } else {
+              throw new RuntimeException(
+                s"Not enough values on stack $name for operation"
+              )
             }
           case _ => throw new RuntimeException("Operand must be a stack")
 
@@ -187,13 +199,12 @@ class Interpreter:
             right match {
               case NilExpr() =>
                 stacks = stacks.updated(name, None :: stacks(name))
+              case NumberExpr(value) =>
+                stacks = stacks.updated(name, Some(value) :: stacks(name))
               case _ =>
-                evaluateExpr(right) match {
-                  case Some(value) =>
-                    stacks = stacks.updated(name, Some(value) :: stacks(name))
-                  case None =>
-                    stacks = stacks.updated(name, None :: stacks(name))
-                }
+                throw new RuntimeException(
+                  "Second operand of PUSH must be a literal; use MOV to transfer a value between stacks"
+                )
             }
           case _ =>
             throw new RuntimeException("First operand of PUSH must be a stack")
@@ -213,68 +224,55 @@ class Interpreter:
           case _ =>
             throw new RuntimeException("Both operands of MOV must be stacks")
 
-      case TokenType.ADD | TokenType.SUB | TokenType.MUL | TokenType.DIV |
-          TokenType.MOD | TokenType.CMP =>
+      case TokenType.CMP =>
         left match
           case StackExpr(name) =>
             ensureStackExists(name)
-            if (stacks(name).nonEmpty) {
-              stacks(name).head match {
-                case Some(stackValue) =>
-                  right match {
-                    case NumberExpr(rightValue) =>
-                      val result =
-                        arithmeticOp(operation, stackValue, rightValue)
-                      stacks =
-                        stacks.updated(name, Some(result) :: stacks(name).tail)
-                    case NilExpr() =>
-                      operation match
-                        case TokenType.CMP =>
-                          stacks =
-                            stacks.updated(name, None :: stacks(name).tail)
-                        case _ =>
-                          throw new RuntimeException(
-                            "Cannot perform arithmetic with nil value"
-                          )
-                    case _ =>
-                      evaluateExpr(right) match {
-                        case Some(value) =>
-                          val result =
-                            arithmeticOp(operation, stackValue, value)
-                          stacks = stacks.updated(
-                            name,
-                            Some(result) :: stacks(name).tail
-                          )
-                        case None =>
-                          operation match
-                            case TokenType.CMP =>
-                              stacks = stacks.updated(
-                                name,
-                                None :: stacks(name).tail
-                              )
-                            case _ =>
-                              throw new RuntimeException(
-                                "Cannot perform arithmetic with nil value"
-                              )
-                      }
-                  }
-                case None =>
-                  operation match
-                    case TokenType.CMP =>
-                      stacks =
-                        stacks.updated(name, None :: stacks(name).tail)
+            val contents = stacks(name)
+            // An empty stack reads as nil, so CMP always has both operands.
+            val a = contents.headOption.flatten
+            val n = right match {
+              case NumberExpr(value) => Some(value)
+              case NilExpr()         => None
+              case _ =>
+                throw new RuntimeException(
+                  "Second operand of CMP must be a literal"
+                )
+            }
+            stacks = stacks.updated(name, compare(a, n) :: contents.drop(1))
+          case _ => throw new RuntimeException("First operand must be a stack")
 
-                    case _ =>
-                      throw new RuntimeException(
-                        "Cannot perform arithmetic on nil value"
-                      )
-              }
-            } else {
-              operation match
-                case TokenType.CMP =>
-                  stacks = stacks.updated(name, List(None))
-                case _ =>
-                  throw new RuntimeException(s"Stack $name is empty")
+      case TokenType.ADD | TokenType.SUB | TokenType.MUL | TokenType.DIV |
+          TokenType.MOD =>
+        left match
+          case StackExpr(name) =>
+            ensureStackExists(name)
+            if (stacks(name).isEmpty)
+              throw new RuntimeException(s"Stack $name is empty")
+
+            val rightValue = right match {
+              case NumberExpr(value) => value
+              case NilExpr() =>
+                throw new RuntimeException(
+                  "Cannot perform arithmetic with nil value"
+                )
+              case _ =>
+                throw new RuntimeException(
+                  "Second operand of binary arithmetic must be a literal"
+                )
+            }
+
+            stacks(name).head match {
+              case Some(stackValue) =>
+                stacks = stacks.updated(
+                  name,
+                  arithmeticOp(operation, stackValue, rightValue) ::
+                    stacks(name).tail
+                )
+              case None =>
+                throw new RuntimeException(
+                  "Cannot perform arithmetic on nil value"
+                )
             }
           case _ => throw new RuntimeException("First operand must be a stack")
 
@@ -289,23 +287,32 @@ class Interpreter:
       else None
     case NilExpr() => None
 
-  private def arithmeticOp(op: TokenType, a: Double, b: Double): Double =
+  // An undefined result is nil rather than an error, so a program can test for
+  // it with CMP and recover.
+  private def arithmeticOp(
+      op: TokenType,
+      a: Double,
+      b: Double
+  ): Option[Double] =
     op match
-      case TokenType.ADD => a + b
-      case TokenType.SUB => a - b
-      case TokenType.MUL => a * b
-      case TokenType.DIV =>
-        if (b == 0) throw new RuntimeException("Division by zero")
-        else a / b
-      case TokenType.MOD =>
-        if (b == 0) throw new RuntimeException("Modulo by zero")
-        else a % b
-      case TokenType.CMP =>
-        if (a == b) 0.0
-        else if (a < b) -1.0
-        else 1.0
+      case TokenType.ADD => Some(a + b)
+      case TokenType.SUB => Some(a - b)
+      case TokenType.MUL => Some(a * b)
+      case TokenType.DIV => if (b == 0) None else Some(a / b)
+      case TokenType.MOD => if (b == 0) None else Some(a % b)
       case _ =>
         throw new RuntimeException(s"Unsupported arithmetic operation: $op")
+
+  // Two nil operands compare as 1, which is how a program tests for nil.
+  // Exactly one nil operand yields nil.
+  private def compare(a: Option[Double], b: Option[Double]): Option[Double] =
+    (a, b) match
+      case (Some(x), Some(y)) =>
+        if (x == y) Some(0.0)
+        else if (x < y) Some(-1.0)
+        else Some(1.0)
+      case (None, None) => Some(1.0)
+      case _            => None
 
   def getStacksState(): Map[String, List[Option[Double]]] = stacks
 
