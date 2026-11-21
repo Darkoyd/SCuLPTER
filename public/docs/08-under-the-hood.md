@@ -22,7 +22,7 @@ Since any Turing machine can be translated this way, any computation can be writ
 
 Here is a real one: the 3-state **Busy Beaver**. It's a famous little machine that starts on a tape of 0s, writes six 1s, and stops after 14 moves. This version keeps the current cell in its own `head` stack, and uses `temp` to compare.
 
-```
+```sculpt
 PUSH left 0
 PUSH left 0
 PUSH left 0
@@ -127,10 +127,11 @@ SCuLPT is a community project, and there are many ways to help:
 
 ## Research
 
-SCuLPT was born as a research project at Universidad de los Andes, exploring programming as a tangible and artistic experience. We have tested it in workshops with children, teenagers, university students, programmers and artists. If you want to dig deeper into the design, the evaluation, or the full Turing completeness proof, these are the documents:
+SCuLPT was born as a research project at Universidad de los Andes, exploring programming as a tangible and artistic experience. We have tested it in workshops with children, teenagers, university students, programmers and artists. If you want to dig deeper into the design, the evaluation, or the full Turing completeness proof, these are the publications:
 
-- **SCuLPT: Simple Cubic Language for Programming Tasks**, the thesis on the design and theory of the language. [GitHub](https://github.com/Darkoyd/SCuLPT-Document)
-- **ArtLang**, the conference paper presented at CCC'24. [GitHub](https://github.com/Darkoyd/ArtLang)
-- **SCuLPT**, the journal paper submitted to The Art, Science, and Engineering of Programming, with the full Turing completeness proof. [GitHub](https://github.com/FLAGlab/sculpt)
+- **Code is Art, Art is Code**. Nicolás Londoño and Nicolás Cardozo. Colombian Conference on Computing (CCC 2024). [Source on GitHub](https://github.com/Darkoyd/ArtLang)
+- **Code as Art, Art as Code** (poster). Nicolás Londoño and Nicolás Cardozo. Colombian Conference on Computing (CCC 2024). [Source on GitHub](https://github.com/Darkoyd/ArtLangPoster)
+- **Code as Art, Art as Code: The SCuLPT Programming Language**. Nicolás Londoño Cuellar. Undergraduate thesis in Systems and Computing Engineering, Universidad de los Andes, 2025. [Source on GitHub](https://github.com/Darkoyd/SCuLPT-Document)
+- **The Art of Programming with SCuLPT**. Nicolás Londoño and Nicolás Cardozo. Submitted to *The Art, Science, and Engineering of Programming*. This one has the full Turing completeness proof. [Source on GitHub](https://github.com/FLAGlab/sculpt)
 
 Thanks for reading all the way here. Now go make something!

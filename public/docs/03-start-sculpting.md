@@ -137,7 +137,7 @@ We write stacks with the top on the **right**, so `[4, 7]` means 7 is on top. Ad
 
 The same program in SCuLPTER looks like this:
 
-```
+```sculpt
 PUSH circle 4
 PUSH circle 7
 ADD circle

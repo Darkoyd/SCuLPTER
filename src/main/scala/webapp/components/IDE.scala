@@ -10,8 +10,15 @@ import com.raquo.laminar.api.L.{*, given}
 import sculpter.{Lexer, Parser, Program, UnaryStatement, BinaryStatement, StackExpr, NumberExpr, NilExpr, InterpreterInstance}
 
 object IDE:
+    // Set by "Open in SCuLPTER" buttons; replaces the default program once.
+    var pendingCode: Option[String] = None
+
     def appElement(): Element =
-        val textVar = Var("""// SCuLPT example program
+        val textVar = Var(pendingCode.getOrElse(defaultProgram))
+        pendingCode = None
+        appElement(textVar)
+
+    private val defaultProgram = """// SCuLPT example program
 // Try stepping through this program to see how it works
 
 // Push values onto stack 'a'
@@ -53,7 +60,9 @@ SUB f     // f now contains 2 (5-3): the top of the stack is the left operand
 PUSH g 3
 PUSH g 4
 MUL g     // g now contains 12
-""")
+"""
+
+    private def appElement(textVar: Var[String]): Element =
         val lexerOutputVar = Var[List[String]](List())
         val parserOutputVar = Var[String]("")
         val hasParseError = Var(false)

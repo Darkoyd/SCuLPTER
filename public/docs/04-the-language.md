@@ -28,7 +28,7 @@ Throughout this documentation we write stacks with the top on the **right**: `[1
 
 In SCuLPTER, every block becomes one line of text. The connectors disappear, only the order of the blocks matters. A program reads like a list of instructions:
 
-```
+```sculpt
 PUSH circle 4       // block 1
 PUSH circle 7       // block 2
 ADD circle          // block 3
@@ -53,7 +53,7 @@ Here are the rules for writing a line:
 
 Puts a number on top of a stack. The second parameter is always a value (a number or nil), never a stack. To move a value from one stack to another, use Move.
 
-```
+```sculpt
 PUSH circle 5       // circle: [5]
 PUSH circle -2      // circle: [5, -2]
 PUSH circle nil     // circle: [5, -2, nil]
@@ -63,7 +63,7 @@ PUSH circle nil     // circle: [5, -2, nil]
 
 Removes the top value of a stack and throws it away. To keep the value, use Move instead. Popping an empty stack does nothing.
 
-```
+```sculpt
 PUSH circle 1
 PUSH circle 2
 POP circle          // circle: [1]
@@ -73,7 +73,7 @@ POP circle          // circle: [1]
 
 Takes the top value of the **second** stack and puts it on top of the **first** one. Read it as "move into circle, from triangle". If the second stack is empty, Move puts nil on the first stack.
 
-```
+```sculpt
 PUSH triangle 1
 PUSH triangle 2
 MOV circle triangle // circle: [2], triangle: [1]
@@ -84,7 +84,7 @@ MOV circle square   // square is empty, so circle: [2, nil]
 
 Copies the top value of a stack and puts the copy on top. If the stack is empty, Duplicate puts nil on it.
 
-```
+```sculpt
 PUSH circle 3
 DUP circle          // circle: [3, 3]
 ```
@@ -97,7 +97,7 @@ Addition, Subtraction, Multiplication, Division and Modulo all come in two forms
 
 **With one parameter** (a stack), the operation takes the top value, then the value below it, and puts the result back on the stack:
 
-```
+```sculpt
 PUSH circle 4
 PUSH circle 7
 ADD circle          // 7 + 4, circle: [11]
@@ -105,14 +105,14 @@ ADD circle          // 7 + 4, circle: [11]
 
 **With two parameters** (a stack and a value), the operation takes only the top value of the stack and uses the second parameter as the other number:
 
-```
+```sculpt
 PUSH circle 11
 MUL circle 3        // 11 * 3, circle: [33]
 ```
 
 **Watch the order!** In both forms, the value from the top of the stack comes **first**. This matters for Subtraction, Division and Modulo:
 
-```
+```sculpt
 PUSH square 3
 PUSH square 10
 SUB square          // 10 - 3, square: [7]
@@ -134,7 +134,7 @@ If you pushed 10 first and then 3, you would get 3 - 10 = -7. When in doubt, pus
 
 Negation is the odd one out: it only takes one stack. It takes the top value and puts back its negative.
 
-```
+```sculpt
 PUSH circle 3
 NEG circle          // circle: [-3]
 ```
@@ -151,7 +151,7 @@ These three operations are the heart of decisions and loops. Here is what each o
 - `0` if they are equal,
 - `-1` if the top value is lesser.
 
-```
+```sculpt
 PUSH circle 2
 PUSH circle 5
 CMP circle          // 5 is greater than 2, circle: [1]
@@ -159,14 +159,14 @@ CMP circle          // 5 is greater than 2, circle: [1]
 
 **With two parameters**, Compare takes only the top value and compares it against the second parameter. The value from the stack comes first.
 
-```
+```sculpt
 PUSH circle 2
 CMP circle 5        // 2 is lesser than 5, circle: [-1]
 ```
 
 Compare is the only operation that is happy to work with nil. If both values are nil, the result is `1`. If only one of them is nil, the result is nil. A missing value (an empty stack) counts as nil. This gives you a simple test for "is this nil?":
 
-```
+```sculpt
 CMP circle nil      // 1 if the top of circle was nil, nil otherwise
 ```
 
@@ -174,7 +174,7 @@ CMP circle nil      // 1 if the top of circle was nil, nil otherwise
 
 Moves the execution forward or backward by a number of blocks. `JMP 1` goes to the next block (so it does nothing), `JMP 2` skips one block, `JMP -3` goes back three blocks.
 
-```
+```sculpt
 PUSH circle 1
 JMP 2               // skip the next block
 PUSH circle 99      // never runs
@@ -183,7 +183,7 @@ PUSH circle 2       // circle: [1, 2]
 
 The number can also come from a stack. In that case Jump takes the top value of the stack and uses it. Decimals are cut down to whole numbers.
 
-```
+```sculpt
 PUSH steps 2
 JMP steps           // same as JMP 2
 ```
@@ -195,7 +195,7 @@ Takes the top value of a stack and decides whether to run the next block:
 - If the value is **zero or positive**, the next block runs.
 - If the value is **negative or nil**, the next block is skipped.
 
-```
+```sculpt
 PUSH circle -1
 ? circle            // -1 is negative...
 PUSH circle 99      // ...so this block is skipped

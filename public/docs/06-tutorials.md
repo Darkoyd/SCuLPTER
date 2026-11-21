@@ -9,7 +9,7 @@ We write stacks with the top on the **right**: `[1, 2, 3]` means 3 is on top.
 
 **The challenge**: add two numbers, then multiply the result by a third one.
 
-```
+```sculpt
 PUSH circle 4
 PUSH circle 7
 ADD circle          // circle: [11]
@@ -20,7 +20,7 @@ The one parameter Addition takes the two values on top of circle. The two parame
 
 Now let's subtract. We want 10 - 3:
 
-```
+```sculpt
 PUSH square 3
 PUSH square 10
 SUB square          // square: [7]
@@ -36,7 +36,7 @@ Notice that we pushed the 3 **first**. The top of the stack is always the first 
 
 We need two stacks: `counter` holds the number we are adding, and `total` holds the sum so far.
 
-```
+```sculpt
 PUSH counter 0
 PUSH total 0
 ADD counter 1       // loop starts here
@@ -70,7 +70,7 @@ This program never ends. In SCuLPTER, just stop stepping whenever you like. With
 
 This is our first loop that ends because it runs out of things to do. We will use the nil test from [Control Flow](/SCuLPTER/documentation/control-flow) to check if `input` is empty.
 
-```
+```sculpt
 PUSH input 4
 PUSH input 3
 PUSH input 2
@@ -100,7 +100,7 @@ At the end, `input` is `[]` and `output` is `[4, 9, 16]`. The 2 was on top of in
 
 Now the loop has a decision **inside** it. A number is even when the remainder of dividing it by 2 is 0.
 
-```
+```sculpt
 PUSH input 8
 PUSH input 5
 PUSH input 2
@@ -137,7 +137,7 @@ Notice the two backward Jumps have different numbers (-10 and -12), even though 
 
 This is the program of the Fibonacci sculpture you saw in [Start Sculpting](/SCuLPTER/documentation/start-sculpting). The circle stack collects all the numbers, triangle and hexagon hold the last two, and trapezoid is the place where we add them.
 
-```
+```sculpt
 PUSH hexagon 0
 PUSH circle 0
 PUSH circle 1
@@ -189,7 +189,7 @@ This is the final boss. It uses everything: two nested loops, the nil test, Comp
 
 The idea is the same one you use to sort a hand of cards. Take numbers from `input` one at a time, and insert each one at its right place in `sorted`. To find the place, we move the bigger numbers from `sorted` back to `input` (they will come back later), until the top of `sorted` is not bigger than the number we are holding.
 
-```
+```sculpt
 PUSH input 5
 PUSH input 1
 PUSH input 4

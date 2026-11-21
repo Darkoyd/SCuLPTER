@@ -369,3 +369,28 @@ html {
     word-break: break-word;
   }
 }
+/* Runnable SCuLPT code blocks */
+.docs-code {
+  margin: 1rem 0;
+}
+
+.docs-code pre {
+  margin-bottom: 0.5rem;
+}
+
+.docs-run-button {
+  font-size: 0.85rem;
+  padding: 0.4rem 0.9rem;
+}
+
+.docs-content hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 2rem 0;
+}
+
+/* The examples page has no sidebar, so keep the text at a readable width */
+.examples-page {
+  max-width: 900px;
+  margin: 0 auto;
+}

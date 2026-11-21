@@ -171,7 +171,8 @@ object DocumentationPage:
             contentVar
         }).signal
     
-    private def parseMarkdown(markdown: String): Element =
+    // Also used by ExamplesPage.
+    def parseMarkdown(markdown: String): Element =
         // Simple markdown parser - in production you'd use a proper markdown library
         val lines = markdown.split("\n").toList
         val elements = scala.collection.mutable.ListBuffer[Element]()
@@ -197,14 +198,42 @@ object DocumentationPage:
                 val id = generateHeaderId(title)
                 elements += h4(idAttr := id, title)
             } else if (line.startsWith("```")) {
-                // Code block
+                // Code block. A ```sculpt block gets a button that opens it in the IDE.
+                val lang = line.drop(3).trim
                 val codeLines = scala.collection.mutable.ListBuffer[String]()
                 i += 1
                 while (i < lines.length && !lines(i).trim.startsWith("```")) {
                     codeLines += lines(i)
                     i += 1
                 }
-                elements += pre(code(codeLines.mkString("\n")))
+                val source = codeLines.mkString("\n")
+                if (lang == "sculpt") {
+                    elements += div(
+                        className := "docs-code",
+                        pre(code(source)),
+                        button(
+                            "Open in SCuLPTER",
+                            className := "btn-primary docs-run-button",
+                            onClick --> (_ => {
+                                webapp.components.IDE.pendingCode = Some(source)
+                                webapp.Router.navigateTo("sculpter")
+                            })
+                        )
+                    )
+                } else {
+                    elements += pre(code(source))
+                }
+            } else if (line == "---") {
+                elements += hr()
+            } else if (line.matches("""\d+\.\s.*""")) {
+                // Ordered list
+                val listItems = scala.collection.mutable.ListBuffer[String]()
+                while (i < lines.length && lines(i).trim.matches("""\d+\.\s.*""")) {
+                    listItems += lines(i).trim.dropWhile(_ != '.').drop(1).trim
+                    i += 1
+                }
+                i -= 1 // Adjust for the extra increment
+                elements += ol(listItems.map(item => li(parseInlineFormatting(item))).toList)
             } else if (line.startsWith("- ") || line.startsWith("* ")) {
                 // Unordered list
                 val listItems = scala.collection.mutable.ListBuffer[String]()
@@ -281,6 +310,18 @@ object DocumentationPage:
             }
         }, 100) // Small delay to ensure content is rendered
     
+    // Index of the closing marker if an emphasis span starts at i, else -1.
+    // The markers must hug the text and sit on word boundaries, so "a * b"
+    // and "big_star" stay plain.
+    private def emphasisEnd(text: String, i: Int): Int =
+        val c = text.charAt(i)
+        def isWord(k: Int) = k >= 0 && k < text.length && text.charAt(k).isLetterOrDigit
+        if ((c != '*' && c != '_') || isWord(i - 1) || i + 1 >= text.length || text.charAt(i + 1).isWhitespace) -1
+        else {
+            val j = text.indexOf(c, i + 2)
+            if (j == -1 || text.charAt(j - 1).isWhitespace || isWord(j + 1)) -1 else j
+        }
+
     private def parseInlineFormatting(text: String): List[Node] =
         val result = scala.collection.mutable.ListBuffer[Node]()
         var i = 0
@@ -305,6 +346,15 @@ object DocumentationPage:
                     currentText = currentText + "**"
                     i += 2
                 }
+            } else if (emphasisEnd(text, i) != -1) {
+                // *italic* or _italic_
+                if (currentText.nonEmpty) {
+                    result.addOne(currentText: Node)
+                    currentText = ""
+                }
+                val closingIndex = emphasisEnd(text, i)
+                result.addOne(em(text.substring(i + 1, closingIndex)))
+                i = closingIndex + 1
             } else if (text.charAt(i) == '`') {
                 // Add any accumulated text
                 if (currentText.nonEmpty) {
@@ -627,8 +677,11 @@ object DocumentationPage:
     private def renderContent(): Element =
         div(
             className := "docs-content",
-            child <-- currentChapter.signal.flatMap { chapterId =>
-                loadMarkdownContent(chapterId).map(parseMarkdown)
+            // Wait for docs-config.json: before it loads, a section id can't be
+            // mapped to its file, and a wrong guess would be cached.
+            child <-- currentChapter.signal.combineWith(docsConfig.signal.map(_.isDefined)).flatMap {
+                case (chapterId, true) => loadMarkdownContent(chapterId).map(parseMarkdown)
+                case (_, false) => Signal.fromValue(p("Loading..."))
             }
         )
 

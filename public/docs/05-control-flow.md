@@ -50,7 +50,7 @@ Question only knows "negative or not". To ask anything else, you prepare a numbe
 
 **Is a equal to b?** Compare gives 0 only when they are equal, and ±1 otherwise. Multiply the result by itself and negate it: you get 0 when equal and -1 when not.
 
-```
+```sculpt
 DUP a               // keep a copy of a
 CMP a 3             // 0 if a = 3, otherwise 1 or -1
 DUP a
@@ -67,7 +67,7 @@ NEG a               // 0 if a = 3, otherwise -1
 
 Many loops need to stop when a stack runs out of values. When you read from an empty stack, you get nil. And Compare has a special rule for nil: comparing nil with nil gives `1`, comparing nil with a number gives nil. Put those together and you get this little recipe, which you will use again and again:
 
-```
+```sculpt
 DUP input           // copy the top (or nil, if input is empty)
 CMP input nil       // 1 if it was nil, nil otherwise
 ? input             // runs the next block only if input was empty
@@ -87,7 +87,7 @@ A loop is a group of blocks that runs again and again. There are two ways to bui
 
 Here is a countdown. It starts with 3 in n and counts down until n reaches 0:
 
-```
+```sculpt
 PUSH n 3
 SUB n 1             // loop starts here
 DUP n
@@ -117,7 +117,7 @@ Why the extra `SUB n 1` before the Question? Because zero counts as yes! If we a
 
 Sometimes it's easier to jump **out** of a loop than to jump back in. Put the Question and a forward Jump in the middle of the loop, and a backward Jump at its end. Here's a program that adds the numbers from 1 to 10:
 
-```
+```sculpt
 PUSH counter 0
 PUSH total 0
 ADD counter 1       // loop starts here

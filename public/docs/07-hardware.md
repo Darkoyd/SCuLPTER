@@ -27,7 +27,7 @@ Operation tiles slide into the operation slot of a block. Each one has its symbo
 
 ### Parameters
 
-The parameter is a small cube with a magnet inside, so it snaps onto a parameter holder. Its face is covered with a piece of melamine (whiteboard material, about 2 x 2 cm) so you can write stack labels and values with a dry erase marker, and wipe them off later.
+The parameter has a magnet, so it snaps onto a parameter holder. It is a 2 x 2 cm block of melamine (whiteboard material), so you can write stack labels and values with a dry erase marker, and wipe them off later.
 
 ### Connectors
 
@@ -80,7 +80,7 @@ Want to change the size, the ergonomics, or design your own operation? The origi
 | Connectors 2 | [a360.co/4755mkN](https://a360.co/4755mkN) |
 | Operations | [a360.co/3MthmTE](https://a360.co/3MthmTE) |
 
-The straight connector, the T connector and the operation tiles are exported from these models.
+Some pieces have no STL of their own yet. The straight connector, the T connector and the operation tiles live inside these Fusion 360 files, several pieces per file. Open the file and export the piece you need as STL.
 
 ## Printing
 
@@ -96,13 +96,11 @@ The straight connector, the T connector and the operation tiles are exported fro
 
 ## Assembly
 
-**Magnets**: Glue a 10 x 2 mm neodymium magnet into each parameter holder of every block, and one into every parameter. Before gluing, check the polarity: every parameter must be attracted by every holder. A simple trick is to stack all the magnets in one column and mark the top face of the whole column with a marker before you separate them.
-
-**Melamine faces**: Cut melamine or whiteboard pieces to about 2 x 2 cm and glue them on the front face of each parameter.
+**Parameters**: Cut melamine or whiteboard pieces into 2 x 2 cm blocks. Each one gets a magnet, either pressure fit or glued with epoxy. Do the same with the parameter holders of every block. Don't worry about polarity: as long as the parameter sticks to the block, you are good to go.
 
 **Operations**: Slide an operation tile into the slot next to the screw. The tile should fit snugly, but come out with a little push so you can reuse blocks.
 
-**Connecting blocks**: Join the output hole of one block to the screw of the next with a connector, flat end first. Use male connectors and nuts to lock threaded joints. The order is all that matters for the program: use longer chains, T connectors and wedges to give your sculpture any shape you want.
+**Connecting blocks**: Join the output hole of one block to the screw of the next with a connector, flat end first. Lock each joint with a male connector and a nut. The order is all that matters for the program: use longer chains, T connectors and wedges to give your sculpture any shape you want.
 
 ![Construction | center](/SCuLPTER/imgs/Figures/construction.png)
 
