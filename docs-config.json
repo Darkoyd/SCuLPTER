@@ -1,5 +1,5 @@
 {
-  "generated": "2025-10-25T02:49:48.587Z",
+  "generated": "2026-11-21T06:09:09.079Z",
   "sections": [
     {
       "id": "introduction",
@@ -36,6 +36,11 @@
           "level": 2,
           "title": "Getting Help",
           "id": "getting-help"
+        },
+        {
+          "level": 2,
+          "title": "Ready to Start?",
+          "id": "ready-to-start"
         }
       ],
       "navigation": [
@@ -74,6 +79,12 @@
               "title": "Getting Help",
               "level": 2,
               "children": []
+            },
+            {
+              "id": "ready-to-start",
+              "title": "Ready to Start?",
+              "level": 2,
+              "children": []
             }
           ]
         }
@@ -109,6 +120,11 @@
           "level": 4,
           "title": "Printing the Components",
           "id": "printing-the-components"
+        },
+        {
+          "level": 3,
+          "title": "Starting Your First Physical Program",
+          "id": "starting-your-first-physical-program"
         },
         {
           "level": 2,
@@ -170,6 +186,12 @@
                       "children": []
                     }
                   ]
+                },
+                {
+                  "id": "starting-your-first-physical-program",
+                  "title": "Starting Your First Physical Program",
+                  "level": 3,
+                  "children": []
                 }
               ]
             },
@@ -230,6 +252,41 @@
           "level": 2,
           "title": "Blocks of all shapes and colours",
           "id": "blocks-of-all-shapes-and-colours"
+        },
+        {
+          "level": 2,
+          "title": "Operations",
+          "id": "operations"
+        },
+        {
+          "level": 2,
+          "title": "Parameters",
+          "id": "parameters"
+        },
+        {
+          "level": 2,
+          "title": "Connectors and fixtures",
+          "id": "connectors-and-fixtures"
+        },
+        {
+          "level": 2,
+          "title": "Reading a sculpture",
+          "id": "reading-a-sculpture"
+        },
+        {
+          "level": 2,
+          "title": "Your first sculpture",
+          "id": "your-first-sculpture"
+        },
+        {
+          "level": 2,
+          "title": "A bigger sculpture: Fibonacci",
+          "id": "a-bigger-sculpture-fibonacci"
+        },
+        {
+          "level": 2,
+          "title": "What's Next?",
+          "id": "whats-next"
         }
       ],
       "navigation": [
@@ -241,6 +298,702 @@
             {
               "id": "blocks-of-all-shapes-and-colours",
               "title": "Blocks of all shapes and colours",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "operations",
+              "title": "Operations",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "parameters",
+              "title": "Parameters",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "connectors-and-fixtures",
+              "title": "Connectors and fixtures",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "reading-a-sculpture",
+              "title": "Reading a sculpture",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "your-first-sculpture",
+              "title": "Your first sculpture",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "a-bigger-sculpture-fibonacci",
+              "title": "A bigger sculpture: Fibonacci",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "whats-next",
+              "title": "What's Next?",
+              "level": 2,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "the-language",
+      "title": "The Language",
+      "filename": "04-the-language.md",
+      "order": 4,
+      "headers": [
+        {
+          "level": 1,
+          "title": "The Language",
+          "id": "the-language"
+        },
+        {
+          "level": 2,
+          "title": "Values",
+          "id": "values"
+        },
+        {
+          "level": 2,
+          "title": "Stacks",
+          "id": "stacks"
+        },
+        {
+          "level": 2,
+          "title": "Writing SCuLPT in SCuLPTER",
+          "id": "writing-sculpt-in-sculpter"
+        },
+        {
+          "level": 2,
+          "title": "Stack operations",
+          "id": "stack-operations"
+        },
+        {
+          "level": 3,
+          "title": "Push",
+          "id": "push"
+        },
+        {
+          "level": 3,
+          "title": "Pop",
+          "id": "pop"
+        },
+        {
+          "level": 3,
+          "title": "Move",
+          "id": "move"
+        },
+        {
+          "level": 3,
+          "title": "Duplicate",
+          "id": "duplicate"
+        },
+        {
+          "level": 2,
+          "title": "Arithmetic operations",
+          "id": "arithmetic-operations"
+        },
+        {
+          "level": 3,
+          "title": "Negation",
+          "id": "negation"
+        },
+        {
+          "level": 2,
+          "title": "Flow operations",
+          "id": "flow-operations"
+        },
+        {
+          "level": 3,
+          "title": "Compare",
+          "id": "compare"
+        },
+        {
+          "level": 3,
+          "title": "Jump",
+          "id": "jump"
+        },
+        {
+          "level": 3,
+          "title": "Question",
+          "id": "question"
+        },
+        {
+          "level": 2,
+          "title": "Errors",
+          "id": "errors"
+        },
+        {
+          "level": 2,
+          "title": "Cheat sheet",
+          "id": "cheat-sheet"
+        }
+      ],
+      "navigation": [
+        {
+          "id": "the-language",
+          "title": "The Language",
+          "level": 1,
+          "children": [
+            {
+              "id": "values",
+              "title": "Values",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "stacks",
+              "title": "Stacks",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "writing-sculpt-in-sculpter",
+              "title": "Writing SCuLPT in SCuLPTER",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "stack-operations",
+              "title": "Stack operations",
+              "level": 2,
+              "children": [
+                {
+                  "id": "push",
+                  "title": "Push",
+                  "level": 3,
+                  "children": []
+                },
+                {
+                  "id": "pop",
+                  "title": "Pop",
+                  "level": 3,
+                  "children": []
+                },
+                {
+                  "id": "move",
+                  "title": "Move",
+                  "level": 3,
+                  "children": []
+                },
+                {
+                  "id": "duplicate",
+                  "title": "Duplicate",
+                  "level": 3,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "arithmetic-operations",
+              "title": "Arithmetic operations",
+              "level": 2,
+              "children": [
+                {
+                  "id": "negation",
+                  "title": "Negation",
+                  "level": 3,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "flow-operations",
+              "title": "Flow operations",
+              "level": 2,
+              "children": [
+                {
+                  "id": "compare",
+                  "title": "Compare",
+                  "level": 3,
+                  "children": []
+                },
+                {
+                  "id": "jump",
+                  "title": "Jump",
+                  "level": 3,
+                  "children": []
+                },
+                {
+                  "id": "question",
+                  "title": "Question",
+                  "level": 3,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "errors",
+              "title": "Errors",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "cheat-sheet",
+              "title": "Cheat sheet",
+              "level": 2,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "control-flow",
+      "title": "Control Flow",
+      "filename": "05-control-flow.md",
+      "order": 5,
+      "headers": [
+        {
+          "level": 1,
+          "title": "Control Flow",
+          "id": "control-flow"
+        },
+        {
+          "level": 2,
+          "title": "How execution flows",
+          "id": "how-execution-flows"
+        },
+        {
+          "level": 2,
+          "title": "Jumping around",
+          "id": "jumping-around"
+        },
+        {
+          "level": 2,
+          "title": "Asking questions",
+          "id": "asking-questions"
+        },
+        {
+          "level": 2,
+          "title": "Asking the right question",
+          "id": "asking-the-right-question"
+        },
+        {
+          "level": 2,
+          "title": "Testing for nil",
+          "id": "testing-for-nil"
+        },
+        {
+          "level": 2,
+          "title": "Loops",
+          "id": "loops"
+        },
+        {
+          "level": 2,
+          "title": "Leaving a loop",
+          "id": "leaving-a-loop"
+        },
+        {
+          "level": 2,
+          "title": "Common mistakes",
+          "id": "common-mistakes"
+        }
+      ],
+      "navigation": [
+        {
+          "id": "control-flow",
+          "title": "Control Flow",
+          "level": 1,
+          "children": [
+            {
+              "id": "how-execution-flows",
+              "title": "How execution flows",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "jumping-around",
+              "title": "Jumping around",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "asking-questions",
+              "title": "Asking questions",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "asking-the-right-question",
+              "title": "Asking the right question",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "testing-for-nil",
+              "title": "Testing for nil",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "loops",
+              "title": "Loops",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "leaving-a-loop",
+              "title": "Leaving a loop",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "common-mistakes",
+              "title": "Common mistakes",
+              "level": 2,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tutorials",
+      "title": "Tutorials",
+      "filename": "06-tutorials.md",
+      "order": 6,
+      "headers": [
+        {
+          "level": 1,
+          "title": "Tutorials",
+          "id": "tutorials"
+        },
+        {
+          "level": 2,
+          "title": "1. Arithmetic",
+          "id": "1-arithmetic"
+        },
+        {
+          "level": 2,
+          "title": "2. Summing to infinity",
+          "id": "2-summing-to-infinity"
+        },
+        {
+          "level": 2,
+          "title": "3. Map: squaring numbers",
+          "id": "3-map-squaring-numbers"
+        },
+        {
+          "level": 2,
+          "title": "4. Filter: even and odd",
+          "id": "4-filter-even-and-odd"
+        },
+        {
+          "level": 2,
+          "title": "5. Fibonacci",
+          "id": "5-fibonacci"
+        },
+        {
+          "level": 2,
+          "title": "6. Sorting",
+          "id": "6-sorting"
+        },
+        {
+          "level": 2,
+          "title": "Where to go from here",
+          "id": "where-to-go-from-here"
+        }
+      ],
+      "navigation": [
+        {
+          "id": "tutorials",
+          "title": "Tutorials",
+          "level": 1,
+          "children": [
+            {
+              "id": "1-arithmetic",
+              "title": "1. Arithmetic",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "2-summing-to-infinity",
+              "title": "2. Summing to infinity",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "3-map-squaring-numbers",
+              "title": "3. Map: squaring numbers",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "4-filter-even-and-odd",
+              "title": "4. Filter: even and odd",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "5-fibonacci",
+              "title": "5. Fibonacci",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "6-sorting",
+              "title": "6. Sorting",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "where-to-go-from-here",
+              "title": "Where to go from here",
+              "level": 2,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hardware",
+      "title": "Hardware",
+      "filename": "07-hardware.md",
+      "order": 7,
+      "headers": [
+        {
+          "level": 1,
+          "title": "Hardware",
+          "id": "hardware"
+        },
+        {
+          "level": 2,
+          "title": "The pieces",
+          "id": "the-pieces"
+        },
+        {
+          "level": 3,
+          "title": "Blocks",
+          "id": "blocks"
+        },
+        {
+          "level": 3,
+          "title": "Operations",
+          "id": "operations"
+        },
+        {
+          "level": 3,
+          "title": "Parameters",
+          "id": "parameters"
+        },
+        {
+          "level": 3,
+          "title": "Connectors",
+          "id": "connectors"
+        },
+        {
+          "level": 3,
+          "title": "Fixtures",
+          "id": "fixtures"
+        },
+        {
+          "level": 2,
+          "title": "Files",
+          "id": "files"
+        },
+        {
+          "level": 3,
+          "title": "Ready to print",
+          "id": "ready-to-print"
+        },
+        {
+          "level": 3,
+          "title": "Editable models",
+          "id": "editable-models"
+        },
+        {
+          "level": 2,
+          "title": "Printing",
+          "id": "printing"
+        },
+        {
+          "level": 2,
+          "title": "Assembly",
+          "id": "assembly"
+        },
+        {
+          "level": 2,
+          "title": "Make it your own",
+          "id": "make-it-your-own"
+        }
+      ],
+      "navigation": [
+        {
+          "id": "hardware",
+          "title": "Hardware",
+          "level": 1,
+          "children": [
+            {
+              "id": "the-pieces",
+              "title": "The pieces",
+              "level": 2,
+              "children": [
+                {
+                  "id": "blocks",
+                  "title": "Blocks",
+                  "level": 3,
+                  "children": []
+                },
+                {
+                  "id": "operations",
+                  "title": "Operations",
+                  "level": 3,
+                  "children": []
+                },
+                {
+                  "id": "parameters",
+                  "title": "Parameters",
+                  "level": 3,
+                  "children": []
+                },
+                {
+                  "id": "connectors",
+                  "title": "Connectors",
+                  "level": 3,
+                  "children": []
+                },
+                {
+                  "id": "fixtures",
+                  "title": "Fixtures",
+                  "level": 3,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "files",
+              "title": "Files",
+              "level": 2,
+              "children": [
+                {
+                  "id": "ready-to-print",
+                  "title": "Ready to print",
+                  "level": 3,
+                  "children": []
+                },
+                {
+                  "id": "editable-models",
+                  "title": "Editable models",
+                  "level": 3,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "printing",
+              "title": "Printing",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "assembly",
+              "title": "Assembly",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "make-it-your-own",
+              "title": "Make it your own",
+              "level": 2,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "under-the-hood",
+      "title": "Under The Hood",
+      "filename": "08-under-the-hood.md",
+      "order": 8,
+      "headers": [
+        {
+          "level": 1,
+          "title": "Under the Hood",
+          "id": "under-the-hood"
+        },
+        {
+          "level": 2,
+          "title": "Is SCuLPT a real language?",
+          "id": "is-sculpt-a-real-language"
+        },
+        {
+          "level": 2,
+          "title": "A Turing machine in SCuLPT",
+          "id": "a-turing-machine-in-sculpt"
+        },
+        {
+          "level": 2,
+          "title": "How SCuLPTER works",
+          "id": "how-sculpter-works"
+        },
+        {
+          "level": 2,
+          "title": "Running SCuLPTER locally",
+          "id": "running-sculpter-locally"
+        },
+        {
+          "level": 2,
+          "title": "Contributing",
+          "id": "contributing"
+        },
+        {
+          "level": 2,
+          "title": "Research",
+          "id": "research"
+        }
+      ],
+      "navigation": [
+        {
+          "id": "under-the-hood",
+          "title": "Under the Hood",
+          "level": 1,
+          "children": [
+            {
+              "id": "is-sculpt-a-real-language",
+              "title": "Is SCuLPT a real language?",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "a-turing-machine-in-sculpt",
+              "title": "A Turing machine in SCuLPT",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "how-sculpter-works",
+              "title": "How SCuLPTER works",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "running-sculpter-locally",
+              "title": "Running SCuLPTER locally",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "contributing",
+              "title": "Contributing",
+              "level": 2,
+              "children": []
+            },
+            {
+              "id": "research",
+              "title": "Research",
               "level": 2,
               "children": []
             }
